@@ -20,6 +20,7 @@
     "electron": "^3.0.3"
   },
   "dependencies": {
+    "hoek": "^5.0.4",
     "jquery": "^3.3.1"
   }
 }
