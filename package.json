@@ -1,0 +1,25 @@
+{
+  "name": "sqlite3_page_dissector",
+  "version": "1.0.0",
+  "description": "Visually explore the contents of each page in any SQLite3 database",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/siara-cc/sqlite3_page_dissector",
+  "keywords": [
+    "sqlite3",
+    "file format",
+    "dissector",
+    "file viewer",
+    "hex viewer"
+  ],
+  "author": "arun@siara.cc",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "electron": "^3.0.3"
+  },
+  "dependencies": {
+    "jquery": "^3.3.1"
+  }
+}
