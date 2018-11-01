@@ -217,11 +217,14 @@
       }
       $('#hexArea2').empty().append(txt);
     }
-    function openPage(parentPageId, pageNo) {
-      pageNo++;
+    function openPage(parentPageId, pageNo, typ) {
+      typ = typeof typ !== 'undefined' ? typ : 'b';
+      typName = (typ == 'b' ? "BTree" : (type == 'l' ? "LockByte" 
+          : (type == 'ft' ? "FreeTrunk" : (type == 'fl' ? "FreeLeaf" 
+          : (type == 'o' ? "Overflow" : "PtrMap")))));
       try {
         var buffer = new Uint8Array(pageSize);
-        bytesRead = fs.readSync(myBinaryFileFD, buffer, 0, pageSize, pageNo * pageSize);
+        bytesRead = fs.readSync(myBinaryFileFD, buffer, 0, pageSize, (pageNo - 1) * pageSize);
         if (bytesRead == 0) {
           alert("Unable to read page from file");
           return;
@@ -231,12 +234,21 @@
           return;
         }
         if (parentPageId == '') {
-          $('#mainOutline').append('<li id="p' + pageNo + '" ondblclick="showPage(this, event, 0)">Page ' 
-            + pageNo + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
+          var pageId = typ + pageNo;
+          if (document.getElementById(pageId) == null) {
+            $('#mainOutline').append('<li id="' + pageId 
+              + '" ondblclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
+              + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
+          } else
+            alert("Already open");
         } else {
-          $('#' + parentPageId).children("ul").append('<li id="' + parentPageId + '_' + pageNo 
-                + '" ondblclick="showPage(this, event, 0)">Page ' + pageNo 
-                + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
+          var pageId = parentPageId + '_' + typ + pageNo;
+          if (document.getElementById(pageId) == null) {
+            $('#' + parentPageId).children("ul").append('<li id="' + pageId
+              + '" ondblclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
+              + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
+          } else
+            alert("Already open");
         }
       } catch (err) {
           alert(err);
@@ -272,7 +284,7 @@
       det += "<br><br>";
       $('#detailArea').empty().append(det);
     }
-    function showPage(obj, evt, start) {
+    function showBTreePage(obj, evt, start) {
       var s = obj.children.item(0).value;
       det = "<b><u>Page contents</u></b><br>";
       var ptype, ptypestr;
@@ -292,7 +304,7 @@
         det += "<br>Right most pointer: <b>" + rightPtr + "</b>&nbsp;<input type='button' value='Open' onclick='openPage(\"" + pageId + "\"," + rightPtr + ")'/>";
         hdrSize = 12;
       }
-      det += "<br>Cells:<br/>";
+      det += "<br><b>Cells:</b><br/>";
       det += "<table cellspacing='1' cellpadding='1' border='1'>";
       det += "<thead><td>Page</td><td>Row ID</td><td>Len</td><td>Payload</td><td>Overflow</td></thead>";
       for (var cell = 0; cell < cellCount; cell++) {
@@ -325,7 +337,7 @@
         }
         if (ptype == 2 || ptype == 10 || ptype == 13) {
           var hdrInfo = getVarInt(s, cellPtr);
-          if (vInt[0] <= maxLocal && hdrInfo[0] <= vInt[0]) {
+          if (vInt[0] <= maxLocal) {
             var hdrLen = hdrInfo[0] - hdrInfo[1];
             var dataPtr = cellPtr + hdrInfo[0];
             cellPtr += hdrInfo[1];
@@ -382,10 +394,17 @@
               i += colInfo[1];
               cellPtr += colInfo[1];
             }
-            var re = new RegExp("\\<td\\>Payload\\<\\/td\\>", "gi");
-            det.replace(re, hdr);
+            var toFind = "<td>Payload</td>";
+            var idx = det.indexOf(toFind);
+            if (idx != -1)
+              det = det.substring(0, idx) + hdr + det.substring(idx + toFind.length);
+            det += "<td></td>";
           } else {
-            //if (vInt[0] > maxLocal)
+            vInt[0] -= 4;
+            var pageNo = fourHexBytesToInt(s, cellPtr + vInt[0]);
+            det += "<td>" + s.substr(cellPtr * 3, vInt[0] * 3) + "</td>";
+            det += "<td><input type='button' value='Page " + pageNo + "' onclick='openPage(\"" + pageId + "\"," 
+                    + pageNo + ")'/></td>";
           }
         }
         det += "</tr>";
@@ -395,7 +414,7 @@
       evt.stopPropagation();
     }
     function showPage1(obj, evt) {
-      showPage(obj, evt, 100);
+      showBTreePage(obj, evt, 100);
     }
     function selectFile() {
       try {
