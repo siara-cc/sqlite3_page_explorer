@@ -62,6 +62,12 @@
     const fs = require('fs');
 
     var myBinaryFileFD = 0;
+    var pageSize, usableSize, maxLocal, minLocal, maxLeaf, minLeaf;
+    var pageInfo = {hexStr: null, start: 0, ptype: 0, curPos: 0, cellarr: null, cellend: 0,
+                      atype: 'h', firstFreeBlockStart: 0, cellCount: 0, nxtFB: 0};
+    function oneHexByteToInt(s, pos) {
+      return parseInt(s.substr(pos * 3, 2), 16);
+    }
     function twoBytesToInt(b1, b2) {
       return b1 << 8 + b2;
     }
@@ -72,14 +78,35 @@
     function twoHexBytesToInt(s, pos) {
       return parseInt(s.substr(pos * 3, 2) + s.substr((pos + 1) * 3, 2), 16);
     }
-    function getVarInt(s, pos) {
+    function getIntValue(s, pos, sz) {
       var ret = 0;
-      var b;
-      do {
-        b = parseInt(s.substr(pos * 3, 2), 16);
-        ret += b & 0x7F;
-        pos += 3;
-      } while (b >> 7);
+      for (var i = 0; i < sz; i++) {
+        ret <<= 8;
+        ret += oneHexByteToInt(s, pos + i);
+      }
+      return ret;
+    }
+    function getFloatValue(s, pos) {
+      var buffer = new ArrayBuffer(8);
+      for (var i = 0; i < 8; i++) {
+        buffer[i] = oneHexByteToInt(s, pos + i);
+      }
+      var dv = new DataView(buffer);
+      return dv.getFloat64(0, false);
+    }
+    function getVarInt(s, pos) {
+      var ret = [0, 0];
+      while (ret[1]++ < 8) {
+        ret[0] <<= 7;
+        b = oneHexByteToInt(s, pos);
+        ret[0] += b & 0x7F;
+        if ((b >> 7) == 0)
+            return ret;
+        pos++;
+      }
+      ret[1]++;
+      ret[0] <<= 8;
+      ret[0] += oneHexByteToInt(s, pos);
       return ret;
     }
     function getHexFromNibble(nibble) {
@@ -100,9 +127,6 @@
       }
       return s;
     }
-    var pageSize;
-    var pageInfo = {hexStr: null, start: 0, ptype: 0, curPos: 0, cellarr: null, cellend: 0,
-                      atype: 'h', firstFreeBlockStart: 0, cellCount: 0, nxtFB: 0};
     function markDumpStart() {
       if (pageInfo.ptype == 0)
         return "";
@@ -120,9 +144,16 @@
         return "<span class='bfb'>";
       if (pageInfo.cellarr != null && pageInfo.cellarr.length > 0 && pageInfo.cellarr[0] == pageInfo.curPos / 3) {
         if (pageInfo.ptype == 5)
-          pageInfo.cellend = 3 * (pageInfo.cellarr[0] + 4 + Math.log2(getVarInt(pageInfo.hexStr, pageInfo.cellarr[0]) + 5) / 7);
-        else
-          pageInfo.cellend = 3 * (pageInfo.cellarr[0] + getVarInt(pageInfo.hexStr, pageInfo.cellarr[0]) + (pageInfo.ptype == 2 ? 5 : 1));
+          pageInfo.cellend = 3 * (pageInfo.cellarr[0] + 4 + getVarInt(pageInfo.hexStr, pageInfo.cellarr[0] + 4)[1]);
+        else {
+          var vInt = getVarInt(pageInfo.hexStr, pageInfo.cellarr[0] + (pageInfo.ptype == 2 ? 4 : 0));
+          if (pageInfo.ptype == 13) {
+            pageInfo.cellend = 3 * (pageInfo.cellarr[0] + vInt[1] + vInt[0] 
+              + getVarInt(pageInfo.hexStr, pageInfo.cellarr[0] + vInt[1])[1]);
+          } else {
+            pageInfo.cellend = 3 * (pageInfo.cellarr[0] + (pageInfo.ptype == 2 ? 4 : 0) + vInt[1] + vInt[0]);
+          }
+        }
         pageInfo.cellarr.shift();
         return "<span class='bc'>";
       }
@@ -187,6 +218,7 @@
       $('#hexArea2').empty().append(txt);
     }
     function openPage(parentPageId, pageNo) {
+      pageNo++;
       try {
         var buffer = new Uint8Array(pageSize);
         bytesRead = fs.readSync(myBinaryFileFD, buffer, 0, pageSize, pageNo * pageSize);
@@ -216,14 +248,13 @@
       showHex(s, 100, 13);
       var det = "";
       det = "<b><u>File header</u></b><br><br>Header string: <b>SQLite format 3</b>";
-      var pageSize = parseInt(s.substr(16 * 3, 2)+s.substr(17 * 3, 2), 16);
-      det += "<br>Page Size: <b>" + (pageSize == 1 ? "65536" : pageSize) + "</b>";
-      det += "<br>File format write version: <b>" + (parseInt(s.substr(18 * 3, 2), 16) == 1 ? "Legacy" : "WAL") + "</b>";
-      det += "<br>File format read version: <b>" + (parseInt(s.substr(19 * 3, 2), 16) == 1 ? "Legacy" : "WAL") + "</b>";
-      det += "<br>Bytes of unused reserved space at the end of each page: <b>" + parseInt(s.substr(20 * 3, 2), 16) + "</b>";
-      det += "<br>Maximum embedded payload fraction. Must be 64: <b>" + parseInt(s.substr(21 * 3, 2), 16) + "</b>";
-      det += "<br>Minimum embedded payload fraction. Must be 32: <b>" + parseInt(s.substr(22 * 3, 2), 16) + "</b>";
-      det += "<br>Leaf payload fraction. Must be 32: <b>" + parseInt(s.substr(23 * 3, 2), 16) + "</b>";
+      det += "<br>Page Size: <b>" + pageSize + "</b>";
+      det += "<br>File format write version: <b>" + (oneHexByteToInt(s, 18) == 1 ? "Legacy" : "WAL") + "</b>";
+      det += "<br>File format read version: <b>" + (oneHexByteToInt(s, 19) == 1 ? "Legacy" : "WAL") + "</b>";
+      det += "<br>Bytes of unused reserved space at the end of each page: <b>" + oneHexByteToInt(s, 20) + "</b>";
+      det += "<br>Maximum embedded payload fraction. Must be 64: <b>" + oneHexByteToInt(s, 21) + "</b>";
+      det += "<br>Minimum embedded payload fraction. Must be 32: <b>" + oneHexByteToInt(s, 22) + "</b>";
+      det += "<br>Leaf payload fraction. Must be 32: <b>" + oneHexByteToInt(s, 23) + "</b>";
       det += "<br>File change counter: <b>" + fourHexBytesToInt(s, 24) + "</b>";
       det += "<br>Size of the database file in pages: <b>" + fourHexBytesToInt(s, 28) + "</b>";
       det += "<br>Page number of the first freelist trunk page: <b>" + fourHexBytesToInt(s, 32) + "</b>";
@@ -245,7 +276,7 @@
       var s = obj.children.item(0).value;
       det = "<b><u>Page contents</u></b><br>";
       var ptype, ptypestr;
-      ptype = parseInt(s.substr(start * 3, 2), 16);
+      ptype = oneHexByteToInt(s, start);
       showHex(s, start, ptype);
       ptypestr = (ptype == 2 ? "Interior index" : (ptype == 5 ? "Interior table" : (ptype == 10 ? "Leaf index" : ptype == 13 ? "Leaf table" : "Invalid")));
       det += "<br>Page type (2-interior index, 5-interior table, 10-leaf index, 13-leaf table): <b>" + ptypestr + "</b>";
@@ -253,7 +284,7 @@
       var cellCount = twoHexBytesToInt(s, start + 3);
       det += "<br>Number of cells on page: <b>" + cellCount + "</b>";
       det += "<br>Start of cell content area: <b>" + twoHexBytesToInt(s, start + 5) + "</b>";
-      det += "<br>Number of fragmented free bytes: <b>" + parseInt(s.substr((start + 7) * 3, 2), 16) + "</b>";
+      det += "<br>Number of fragmented free bytes: <b>" + oneHexByteToInt(s, start + 7) + "</b>";
       var pageId = obj.id;
       var hdrSize = 8;
       if (ptype == 2 || ptype == 5) {
@@ -262,20 +293,108 @@
         hdrSize = 12;
       }
       det += "<br>Cells:<br/>";
-      for (var i = 0; i < cellCount; i++) {
+      det += "<table cellspacing='1' cellpadding='1' border='1'>";
+      det += "<thead><td>Page</td><td>Row ID</td><td>Len</td><td>Payload</td><td>Overflow</td></thead>";
+      for (var cell = 0; cell < cellCount; cell++) {
+        var cellPtr = twoHexBytesToInt(s, cell * 2 + hdrSize + start);
+        det += "<tr>";
         if (ptype == 2 || ptype == 5) {
-          var pageNo = fourHexBytesToInt(s, twoHexBytesToInt(s, i * 2 + hdrSize + start));
-          det += "<input type='button' value='Page " + pageNo + "' onclick='openPage(\"" + pageId + "\"," 
-                  + pageNo + ")'/>&nbsp;";
+          var pageNo = fourHexBytesToInt(s, cellPtr);
+          det += "<td><input type='button' value='Page " + pageNo + "' onclick='openPage(\"" + pageId + "\"," 
+                  + pageNo + ")'/></td>";
+          cellPtr += 4;
         }
+        var vInt = getVarInt(s, cellPtr);
+        cellPtr += vInt[1];
+        switch (ptype) {
+          case 2:
+            det += "<td>-</td><td>" + vInt[0] + "</td>";
+            break;
+          case 5:
+            det += "<td>" + vInt[0] + "</td><td>-</td><td>-</td><td>-</td>";
+            break;
+          case 10:
+            det += "<td>-</td><td>-</td><td>" + vInt[0] + "</td>";
+            break;
+          case 13:
+            det += "<td>-</td><td>" + vInt[0] + "</td>";
+            var vInt1 = getVarInt(s, cellPtr);
+            det += "<td>" + vInt1[0] + "</td>";
+            cellPtr += vInt[1];
+            break;
+        }
+        if (ptype == 2 || ptype == 10 || ptype == 13) {
+          var hdrInfo = getVarInt(s, cellPtr);
+          if (vInt[0] <= maxLocal && hdrInfo[0] <= vInt[0]) {
+            var hdrLen = hdrInfo[0] - hdrInfo[1];
+            var dataPtr = cellPtr + hdrInfo[0];
+            cellPtr += hdrInfo[1];
+            var hdr = "";
+            for (var i = 0; i < hdrLen; ) {
+              var colInfo = getVarInt(s, cellPtr);
+              switch (colInfo[0]) {
+                case 0:
+                case 8:
+                case 9:
+                  hdr += "<td>-</td>";
+                  det += "<td>" + (colInfo[0] == 0 ? "null" : (colInfo[0] == 8 ? "0" : "1")) + "</td>";
+                  break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                  hdr += "<td>i" + (8 * colInfo[0]) + "</td>";
+                  det += "<td>" + getIntValue(s, dataPtr, colInfo[0]) + "</td>";
+                  dataPtr += colInfo[0];
+                  break;
+                case 5:
+                case 6:
+                  hdr += "<td>i" + (colInfo[0] == 5 ? "48" : "64") + "</td>";
+                  det += "<td>" + getIntValue(s, dataPtr, colInfo[0] == 5 ? 6 : 8) + "</td>";
+                  dataPtr += colInfo;
+                  break;
+                case 7:
+                  hdr += "<td>f64</td>";
+                  det += "<td>" + getFloatValue(s, dataPtr) +  "</td>";
+                  dataPtr += colInfo[0];
+                  break;
+                case 10:
+                case 11:
+                  hdr += "?";
+                  det += "?";
+                  break;
+                default:
+                  var dataLen = colInfo[0] - (colInfo[0] % 2 ? 12 : 13);
+                  dataLen /= 2;
+                  dataLen = Math.floor(dataLen);
+                  if (colInfo[0] % 2) {
+                    hdr += "<td>text</td>";
+                    det += "<td>";
+                    for (var j = 0; j < dataLen; j++)
+                      det += String.fromCharCode(oneHexByteToInt(s, dataPtr + j));
+                    det += "</td>";
+                  } else {
+                    hdr += "<td>blob</td>";
+                    det += "<td>" + s.substr(dataPtr * 3, dataLen * 3) + "</td>";
+                  }
+                  dataPtr += dataLen;
+              }
+              i += colInfo[1];
+              cellPtr += colInfo[1];
+            }
+            var re = new RegExp("\\<td\\>Payload\\<\\/td\\>", "gi");
+            det.replace(re, hdr);
+          } else {
+            //if (vInt[0] > maxLocal)
+          }
+        }
+        det += "</tr>";
       }
-      if (start == 0)
-        $('#detailArea').empty();
-      $('#detailArea').append(det);
+      det += "</table>";
+      $('#detailArea').empty().append(det);
       evt.stopPropagation();
     }
     function showPage1(obj, evt) {
-      showHeader(obj);
       showPage(obj, evt, 100);
     }
     function selectFile() {
@@ -310,6 +429,11 @@
                 pageSize = twoBytesToInt(buffer[16], buffer[17]);
                 if (pageSize == 1)
                     pageSize = 65536;
+                usableSize = pageSize - buffer[20];
+                maxLocal = (usableSize-12)*64/255 - 23;
+                minLocal = (usableSize-12)*32/255 - 23;
+                maxLeaf = usableSize - 35;
+                minLeaf = (usableSize-12)*32/255 - 23;
                 buffer = new Uint8Array(pageSize);
                 bytesRead = fs.readSync(fd, buffer, 0, pageSize, 0);
                 $('#mainOutline').append('<li id="p0" ondblclick="showPage1(this, event)">Page 1<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
