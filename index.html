@@ -28,14 +28,24 @@
       box-shadow: 0 0 2em rgba(0,0,0,0.1), inset 0 0 1em rgba(0,0,0,0.1);
       background-color: #29a074;
     }
+    .outlineArea {
+      border-style: solid;
+      border-width: 1px;
+      overflow-y: scroll;
+      height:95%
+    }
     .detailArea {
-      resize: both; width: 100%; height: 95%;
-      overflow-x: scroll; overflow-y: scroll; 
+      width: 100%; height: 95%;
+      white-space: pre;
+      text-overflow: clip;
+      overflow: auto;
       border: 1px solid
     }
     .hexArea {
-      resize: both; width: 100%; height: 95%;
-      overflow-x: scroll; overflow-y: scroll; 
+      width: 100%; height: 95%;
+      white-space: pre;
+      text-overflow: clip;
+      overflow: auto;
       border: 1px solid;
       font-family: "Courier New", Courier, monospace
     }
@@ -160,6 +170,7 @@
       return "";
     }
     const spanend = "</span>";
+    const brk = "<br>";
     function markDumpEnd() {
       if (pageInfo.ptype == 0)
         return "";
@@ -188,34 +199,33 @@
       pageInfo.cellCount = twoHexBytesToInt(s, start + 3);
       pageInfo.nxtFB = pageInfo.firstFreeBlockStart;
       pageInfo.firstFreeBlockStart = twoHexBytesToInt(s, start + 1);
+      var hex = "";
+      var dec = "";
       var txt = "";
       for (var i = 0; i < s.length; i += 3) {
-        if (i > 0 && i % 48 == 0)
-          txt += "<br/>";
+        if (i > 0 && i % 48 == 0) {
+          hex += brk;
+          dec += brk;
+          txt += brk;
+        }
         pageInfo.curPos = i;
-        txt += markDumpStart();
-        txt += s.substr(i, 3);
-        txt += markDumpEnd();
-      }
-      pageInfo.atype = 't';
-      pageInfo.cellend = 0;
-      pageInfo.cellarr = null;
-      pageInfo.nxtFB = pageInfo.firstFreeBlockStart;
-      $('#hexArea1').empty().append(txt);
-      txt = "";
-      for (var i = 0; i < s.length; i += 3) {
-        if (i > 0 && i % 48 == 0)
-          txt += "<br/>";
-        var b = parseInt(s.substr(i, 2), 16);
-        pageInfo.curPos = i;
-        txt += markDumpStart();
-        if (b >= 32 && b <= 126)
-            txt += String.fromCharCode(b);
+        var st = markDumpStart();
+        hex += st; dec += st; txt += st;
+        hex += s.substr(i, 3);
+        var d = parseInt(s.substr(i, 2), 16);
+        dec += (d > 99 ? "" : (d > 9 ? " " : "  "));
+        dec += d;
+        dec += " ";
+        if (d >= 32 && d <= 126)
+            txt += String.fromCharCode(d);
         else
             txt += ".";
-        txt += markDumpEnd();
+        var end = markDumpEnd();
+        hex += end; dec += end; txt += end;
       }
-      $('#hexArea2').empty().append(txt);
+      $('#hexArea1').empty().append(hex);
+      $('#hexArea2').empty().append(dec);
+      $('#hexArea3').empty().append(txt);
     }
     function openPage(parentPageId, pageNo, typ) {
       typ = typeof typ !== 'undefined' ? typ : 'b';
@@ -332,12 +342,12 @@
             det += "<td>-</td><td>" + vInt[0] + "</td>";
             var vInt1 = getVarInt(s, cellPtr);
             det += "<td>" + vInt1[0] + "</td>";
-            cellPtr += vInt[1];
+            cellPtr += vInt1[1];
             break;
         }
         if (ptype == 2 || ptype == 10 || ptype == 13) {
           var hdrInfo = getVarInt(s, cellPtr);
-          if (vInt[0] <= maxLocal) {
+          if (vInt[0] <= (ptype == 13 ? maxLeaf : maxLocal)) {
             var hdrLen = hdrInfo[0] - hdrInfo[1];
             var dataPtr = cellPtr + hdrInfo[0];
             cellPtr += hdrInfo[1];
@@ -445,6 +455,7 @@
                 $('#detailArea').empty();
                 $('#hexArea1').empty();
                 $('#hexArea2').empty();
+                $('#hexArea3').empty();
                 pageSize = twoBytesToInt(buffer[16], buffer[17]);
                 if (pageSize == 1)
                     pageSize = 65536;
@@ -468,6 +479,12 @@
           window.close();
       }
     }
+    function syncScroll(obj) {
+      var other1 = document.getElementById(obj.id == "hexArea1" ? "hexArea2" : "hexArea1");
+      var other2 = document.getElementById(obj.id == "hexArea3" ? "hexArea2" : "hexArea3");
+      other1.scrollTop = obj.scrollTop;
+      other2.scrollTop = obj.scrollTop;
+    }
   </script>
   <script>if (window.module) module = window.module;</script>
 
@@ -477,23 +494,26 @@
       <td align="left" style="color: green"><h1>Sqlite3 Page explorer</h1></td>
       <td style="text-align: right" ><input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/></td>
     </tr></table>
-    <table width="100%" height="40%">
+    <table width="100%" height="40%" style="table-layout:fixed;">
       <tr>
           <td width="35%">
-            <ul style="resize: both; border-style: solid; border-width: 1px; overflow-y: scroll; height:95%" id="mainOutline"></ul>
+            <ul class="outlineArea" id="mainOutline"></ul>
           </td>
           <td width="65%">
             <div class="detailArea" id="detailArea"></div>
           </td>
       </tr>
     </table>
-    <table width="100%" height="35%">
+    <table width="100%" height="35%" style="table-layout:fixed;">
       <tr>
-        <td width="75%">
-          <div class="hexArea" id="hexArea1" onscroll="$('#hexArea2').scrollTop($(this).scrollTop());"></div>
+        <td width="38%">
+          <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
         </td>
-        <td width="25%">
-          <div class="hexArea" id="hexArea2" onscroll="$('#hexArea1').scrollTop($(this).scrollTop());"></div>
+        <td width="44%">
+          <div class="hexArea" id="hexArea2" onscroll="syncScroll(this);"></div>
+        </td>
+        <td width="18%">
+          <div class="hexArea" id="hexArea3" onscroll="syncScroll(this);"></div>
         </td>
       </tr>
     </table>
