@@ -8,6 +8,16 @@
         height: 100%;
         font-family: Arial, Helvetica, sans-serif
       }
+      ul {
+        margin: 3px;
+        padding-left: 20px
+      }
+      li {
+        cursor: hand
+      }
+      div {
+        margin: 3px
+      }
       .fancyButton {
         font-size: 24px;
         font-weight: bold;
@@ -23,44 +33,44 @@
         cursor: pointer;
         box-shadow: 0 0 0 rgba(0,0,0,0.1), inset 0 0 0 rgba(0,0,0,0.1);
         text-align: center;
-    }
-    .fancyButton:hover {
-      box-shadow: 0 0 2em rgba(0,0,0,0.1), inset 0 0 1em rgba(0,0,0,0.1);
-      background-color: #29a074;
-    }
-    .outlineArea {
-      border-style: solid;
-      border-width: 1px;
-      overflow-y: scroll;
-      height:95%
-    }
-    .detailArea {
-      width: 100%; height: 95%;
-      white-space: pre;
-      text-overflow: clip;
-      overflow: auto;
-      border: 1px solid
-    }
-    .hexArea {
-      width: 100%; height: 95%;
-      white-space: pre;
-      text-overflow: clip;
-      overflow: auto;
-      border: 1px solid;
-      font-family: "Courier New", Courier, monospace
-    }
-    .bh {
-      border: 1px solid #0000ff
-    }
-    .bca {
-      border: 1px solid #ff0000
-    }
-    .bfb {
-      border: 1px solid #00ff00
-    }
-    .bc {
-      border: 1px solid #501064
-    }
+      }
+      .fancyButton:hover {
+        box-shadow: 0 0 2em rgba(0,0,0,0.1), inset 0 0 1em rgba(0,0,0,0.1);
+        background-color: #29a074;
+      }
+      .outlineArea {
+        border-style: solid;
+        border-width: 1px;
+        overflow-y: scroll;
+        height:95%
+      }
+      .detailArea {
+        width: 100%; height: 95%;
+        white-space: pre;
+        text-overflow: clip;
+        overflow: auto;
+        border: 1px solid
+      }
+      .hexArea {
+        width: 100%; height: 95%;
+        white-space: pre;
+        text-overflow: clip;
+        overflow: auto;
+        border: 1px solid;
+        font-family: "Courier New", Courier, monospace
+      }
+      .bh {
+        border: 1px solid #0000ff
+      }
+      .bca {
+        border: 1px solid #ff0000
+      }
+      .bfb {
+        border: 1px solid #00ff00
+      }
+      .bc {
+        border: 1px solid #501064
+      }
     </style>
   </head>
 
@@ -227,8 +237,7 @@
       $('#hexArea2').empty().append(dec);
       $('#hexArea3').empty().append(txt);
     }
-    function openPage(parentPageId, pageNo, typ) {
-      typ = typeof typ !== 'undefined' ? typ : 'b';
+    function openPage(parentPageId, pageNo, typ, isRoot) {
       typName = (typ == 'b' ? "BTree" : (type == 'l' ? "LockByte" 
           : (type == 'ft' ? "FreeTrunk" : (type == 'fl' ? "FreeLeaf" 
           : (type == 'o' ? "Overflow" : "PtrMap")))));
@@ -247,15 +256,15 @@
           var pageId = typ + pageNo;
           if (document.getElementById(pageId) == null) {
             $('#mainOutline').append('<li id="' + pageId 
-              + '" ondblclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
+              + '" onclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
               + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
           } else
             alert("Already open");
         } else {
-          var pageId = parentPageId + '_' + typ + pageNo;
+          var pageId = (isRoot ? "p" + parentPageId.substring(1) : parentPageId) + '_' + typ + pageNo;
           if (document.getElementById(pageId) == null) {
             $('#' + parentPageId).children("ul").append('<li id="' + pageId
-              + '" ondblclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
+              + '" onclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
               + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
           } else
             alert("Already open");
@@ -311,7 +320,7 @@
       var hdrSize = 8;
       if (ptype == 2 || ptype == 5) {
         var rightPtr = fourHexBytesToInt(s, start + 8);
-        det += "<br>Right most pointer: <b>" + rightPtr + "</b>&nbsp;<input type='button' value='Open' onclick='openPage(\"" + pageId + "\"," + rightPtr + ")'/>";
+        det += "<br>Right most pointer: <b>" + rightPtr + "</b>&nbsp;<input type='button' value='Open' onclick='openPage(\"" + pageId + "\"," + rightPtr + ", \"b\", false)'/>";
         hdrSize = 12;
       }
       det += "<br><b>Cells:</b><br/>";
@@ -323,7 +332,7 @@
         if (ptype == 2 || ptype == 5) {
           var pageNo = fourHexBytesToInt(s, cellPtr);
           det += "<td><input type='button' value='Page " + pageNo + "' onclick='openPage(\"" + pageId + "\"," 
-                  + pageNo + ")'/></td>";
+                  + pageNo + ", \"b\", false)'/></td>";
           cellPtr += 4;
         }
         var vInt = getVarInt(s, cellPtr);
@@ -339,9 +348,9 @@
             det += "<td>-</td><td>-</td><td>" + vInt[0] + "</td>";
             break;
           case 13:
-            det += "<td>-</td><td>" + vInt[0] + "</td>";
             var vInt1 = getVarInt(s, cellPtr);
-            det += "<td>" + vInt1[0] + "</td>";
+            det += "<td>-</td><td>" + vInt1[0] + "</td>";
+            det += "<td>" + vInt[0] + "</td>";
             cellPtr += vInt1[1];
             break;
         }
@@ -352,32 +361,34 @@
             var dataPtr = cellPtr + hdrInfo[0];
             cellPtr += hdrInfo[1];
             var hdr = "";
+            var colIdx = 0;
             for (var i = 0; i < hdrLen; ) {
               var colInfo = getVarInt(s, cellPtr);
+              det += "<td>";
               switch (colInfo[0]) {
                 case 0:
                 case 8:
                 case 9:
                   hdr += "<td>-</td>";
-                  det += "<td>" + (colInfo[0] == 0 ? "null" : (colInfo[0] == 8 ? "0" : "1")) + "</td>";
+                  det += (colInfo[0] == 0 ? "null" : (colInfo[0] == 8 ? "0" : "1"));
                   break;
                 case 1:
                 case 2:
                 case 3:
                 case 4:
                   hdr += "<td>i" + (8 * colInfo[0]) + "</td>";
-                  det += "<td>" + getIntValue(s, dataPtr, colInfo[0]) + "</td>";
+                  det += getIntValue(s, dataPtr, colInfo[0]);
                   dataPtr += colInfo[0];
                   break;
                 case 5:
                 case 6:
                   hdr += "<td>i" + (colInfo[0] == 5 ? "48" : "64") + "</td>";
-                  det += "<td>" + getIntValue(s, dataPtr, colInfo[0] == 5 ? 6 : 8) + "</td>";
+                  det += getIntValue(s, dataPtr, colInfo[0] == 5 ? 6 : 8);
                   dataPtr += colInfo;
                   break;
                 case 7:
                   hdr += "<td>f64</td>";
-                  det += "<td>" + getFloatValue(s, dataPtr) +  "</td>";
+                  det += getFloatValue(s, dataPtr);
                   dataPtr += colInfo[0];
                   break;
                 case 10:
@@ -391,18 +402,25 @@
                   dataLen = Math.floor(dataLen);
                   if (colInfo[0] % 2) {
                     hdr += "<td>text</td>";
-                    det += "<td>";
+                    var str = "";
                     for (var j = 0; j < dataLen; j++)
-                      det += String.fromCharCode(oneHexByteToInt(s, dataPtr + j));
-                    det += "</td>";
+                      str += String.fromCharCode(oneHexByteToInt(s, dataPtr + j));
+                    det += unescape(str);
                   } else {
                     hdr += "<td>blob</td>";
-                    det += "<td>" + s.substr(dataPtr * 3, dataLen * 3) + "</td>";
+                    det += s.substr(dataPtr * 3, dataLen * 3);
                   }
                   dataPtr += dataLen;
               }
+              if (pageId.substr(0, 2) == 'r0' && colIdx == 3) {
+                var pageNo = det.substring(det.lastIndexOf("<td>") + 4);
+                det += "<input type='button' value='Open'"
+                       + " onclick='openPage(\"" + pageId + "\"," + pageNo + ", \"b\", true)'/>";
+              }
+              det += "</td>";
               i += colInfo[1];
               cellPtr += colInfo[1];
+              colIdx++;
             }
             var toFind = "<td>Payload</td>";
             var idx = det.indexOf(toFind);
@@ -414,7 +432,7 @@
             var pageNo = fourHexBytesToInt(s, cellPtr + vInt[0]);
             det += "<td>" + s.substr(cellPtr * 3, vInt[0] * 3) + "</td>";
             det += "<td><input type='button' value='Page " + pageNo + "' onclick='openPage(\"" + pageId + "\"," 
-                    + pageNo + ")'/></td>";
+                    + pageNo + ", \"o\", false)'/></td>";
           }
         }
         det += "</tr>";
@@ -451,7 +469,7 @@
                     alert("Selected file is not SQLite database");
                     return;
                 }
-                $('#mainOutline').empty().append('<li ondblclick="showHeader(this)">Header<input type="hidden" value="' + toHexString(buffer) + '"/></li>');
+                $('#mainOutline').empty().append('<li onclick="showHeader(this)">Header<input type="hidden" value="' + toHexString(buffer) + '"/></li>');
                 $('#detailArea').empty();
                 $('#hexArea1').empty();
                 $('#hexArea2').empty();
@@ -466,7 +484,7 @@
                 minLeaf = (usableSize-12)*32/255 - 23;
                 buffer = new Uint8Array(pageSize);
                 bytesRead = fs.readSync(fd, buffer, 0, pageSize, 0);
-                $('#mainOutline').append('<li id="p0" ondblclick="showPage1(this, event)">Page 1<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
+                $('#mainOutline').append('<li id="r0" onclick="showPage1(this, event)">Page 1<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
                 var notification = new Notification('Database loaded', {
                   body: 'DB Loaded. Double click on Header or Pages to show details',
                   title: "Loaded"
@@ -496,6 +514,10 @@
     </tr></table>
     <table width="100%" height="40%" style="table-layout:fixed;">
       <tr>
+          <td width="35%">Outline:</td>
+          <td width="65%">Page details:</td>
+      </tr>
+      <tr height="98%">
           <td width="35%">
             <ul class="outlineArea" id="mainOutline"></ul>
           </td>
@@ -506,6 +528,11 @@
     </table>
     <table width="100%" height="35%" style="table-layout:fixed;">
       <tr>
+        <td width="38%">Hex view:</td>
+        <td width="44%">Decimal view:</td>
+        <td width="18%">Text view:</td>
+      </tr>
+      <tr height="98%">
         <td width="38%">
           <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
         </td>
