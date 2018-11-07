@@ -16,7 +16,10 @@
         cursor: hand
       }
       div {
-        margin: 3px
+        margin-left: 3px;
+        margin-right: 3px;
+        margin-top: 3px;
+        margin-bottom: 3px
       }
       .fancyButton {
         font-size: 24px;
@@ -85,6 +88,7 @@
     var pageSize, usableSize, maxLocal, minLocal, maxLeaf, minLeaf;
     var pageInfo = {hexStr: null, start: 0, ptype: 0, curPos: 0, cellarr: null, cellend: 0,
                       atype: 'h', firstFreeBlockStart: 0, cellCount: 0, nxtFB: 0};
+    var txtEncoding = "utf-8";
     function oneHexByteToInt(s, pos) {
       return parseInt(s.substr(pos * 3, 2), 16);
     }
@@ -238,9 +242,9 @@
       $('#hexArea3').empty().append(txt);
     }
     function openPage(parentPageId, pageNo, typ, isRoot) {
-      typName = (typ == 'b' ? "BTree" : (type == 'l' ? "LockByte" 
-          : (type == 'ft' ? "FreeTrunk" : (type == 'fl' ? "FreeLeaf" 
-          : (type == 'o' ? "Overflow" : "PtrMap")))));
+      typName = (typ == 'b' ? "BTree" : (typ == 'l' ? "LockByte" 
+          : (typ == 'ft' ? "FreeTrunk" : (typ == 'fl' ? "FreeLeaf" 
+          : (typ == 'o' ? "Overflow" : (typ == 'u' ? "" : "PtrMap"))))));
       try {
         var buffer = new Uint8Array(pageSize);
         bytesRead = fs.readSync(myBinaryFileFD, buffer, 0, pageSize, (pageNo - 1) * pageSize);
@@ -252,11 +256,17 @@
           alert("Short read");
           return;
         }
+        var ptype = buffer[0];
+        var typDesc = typName;
+        if (typDesc == "")
+           typDesc = "Page";
+        if (typ == 'b')
+          typDesc = (ptype == 2 ? "interior index" : (ptype == 5 ? "interior table" : (ptype == 10 ? "leaf index" : "leaf table")));
         if (parentPageId == '') {
           var pageId = typ + pageNo;
           if (document.getElementById(pageId) == null) {
             $('#mainOutline').append('<li id="' + pageId 
-              + '" onclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
+              + '" onclick="show' + typName + 'Page(this, event, 0)">' + typName + ' ' + typDesc + ' ' + pageNo 
               + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
           } else
             alert("Already open");
@@ -264,7 +274,7 @@
           var pageId = (isRoot ? "p" + parentPageId.substring(1) : parentPageId) + '_' + typ + pageNo;
           if (document.getElementById(pageId) == null) {
             $('#' + parentPageId).children("ul").append('<li id="' + pageId
-              + '" onclick="show' + typName + 'Page(this, event, 0)">' + typName + ' page ' + pageNo 
+              + '" onclick="show' + typName + 'Page(this, event, 0)">' + typName  + ' ' + typDesc + ' ' + pageNo 
               + '<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
           } else
             alert("Already open");
@@ -294,7 +304,9 @@
       det += "<br>The schema format number (Supported are 1, 2, 3, and 4): <b>" + fourHexBytesToInt(s, 44) + "</b>";
       det += "<br>Default page cache size: <b>" + fourHexBytesToInt(s, 48) + "</b>";
       det += "<br>Largest root b-tree page no. (in auto-vacuum or incremental-vacuum modes, else 0): <b>" + fourHexBytesToInt(s, 52) + "</b>";
-      det += "<br>The database text encoding (1-UTF-8, 2-UTF-16le, 3-UTF-16be): <b>" + fourHexBytesToInt(s, 56) + "</b>";
+      var encoding = fourHexBytesToInt(s, 56);
+      txtEncoding = (encoding == 2 ? "utf-16le" : (encoding == 3 ? "utf-16be" : "utf-8"));
+      det += "<br>The database text encoding (1-UTF-8, 2-UTF-16le, 3-UTF-16be): <b>" + txtEncoding + "</b>";
       det += "<br>The 'user version' as read and set by the user_version pragma.: <b>" + fourHexBytesToInt(s, 60) + "</b>";
       det += "<br>Incremental-vacuum mode (0-true, 1-false): <b>" + fourHexBytesToInt(s, 64) + "</b>";
       det += "<br>The 'Application ID' set by PRAGMA application_id: <b>" + fourHexBytesToInt(s, 68) + "</b>";
@@ -402,10 +414,11 @@
                   dataLen = Math.floor(dataLen);
                   if (colInfo[0] % 2) {
                     hdr += "<td>text</td>";
-                    var str = "";
+                    var arr = new Uint8Array(dataLen);
                     for (var j = 0; j < dataLen; j++)
-                      str += String.fromCharCode(oneHexByteToInt(s, dataPtr + j));
-                    det += unescape(str);
+                      arr[j] = oneHexByteToInt(s, dataPtr + j);
+                    var dec = new TextDecoder(txtEncoding);
+                    det += dec.decode(arr);
                   } else {
                     hdr += "<td>blob</td>";
                     det += s.substr(dataPtr * 3, dataLen * 3);
@@ -478,13 +491,13 @@
                 if (pageSize == 1)
                     pageSize = 65536;
                 usableSize = pageSize - buffer[20];
-                maxLocal = (usableSize-12)*64/255 - 23;
-                minLocal = (usableSize-12)*32/255 - 23;
-                maxLeaf = usableSize - 35;
-                minLeaf = (usableSize-12)*32/255 - 23;
+                maxLocal = Math.floor((usableSize-12)*64/255 - 23);
+                minLocal = Math.floor((usableSize-12)*32/255 - 23);
+                maxLeaf = Math.floor(usableSize - 35);
+                minLeaf = Math.floor((usableSize-12)*32/255 - 23);
                 buffer = new Uint8Array(pageSize);
                 bytesRead = fs.readSync(fd, buffer, 0, pageSize, 0);
-                $('#mainOutline').append('<li id="r0" onclick="showPage1(this, event)">Page 1<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
+                $('#mainOutline').append('<li id="r0" onclick="showPage1(this, event)">Root page<input type="hidden" value="' + toHexString(buffer) + '"/><ul></ul></li>');
                 var notification = new Notification('Database loaded', {
                   body: 'DB Loaded. Double click on Header or Pages to show details',
                   title: "Loaded"
@@ -503,6 +516,10 @@
       other1.scrollTop = obj.scrollTop;
       other2.scrollTop = obj.scrollTop;
     }
+    function isNumberKey(evt) {
+      var charCode = (evt.which) ? evt.which : evt.keyCode;
+      return !(charCode < 48 || charCode > 57);
+    }
   </script>
   <script>if (window.module) module = window.module;</script>
 
@@ -512,12 +529,18 @@
       <td align="left" style="color: green"><h1>Sqlite3 Page explorer</h1></td>
       <td style="text-align: right" ><input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/></td>
     </tr></table>
-    <table width="100%" height="40%" style="table-layout:fixed;">
+    <table width="100%" height="40%" style="table-layout:fixed;" cellpadding='0' cellspacing='0'>
       <tr>
-          <td width="35%">Outline:</td>
-          <td width="65%">Page details:</td>
+          <td width="35%">
+            <span>Page list:</span>
+            <span style="align: right">
+              <input type="button" value="Open page" onclick="openPage('', this.parentElement.children[1].value, 'u', false);"/>
+              <input type="text" size="5" value="2" onkeypress="return isNumberKey(event);"/>
+            </span>
+          </td>
+          <td width="65%">&nbsp;Page details:</td>
       </tr>
-      <tr height="98%">
+      <tr height="99%">
           <td width="35%">
             <ul class="outlineArea" id="mainOutline"></ul>
           </td>
@@ -526,13 +549,13 @@
           </td>
       </tr>
     </table>
-    <table width="100%" height="35%" style="table-layout:fixed;">
+    <table width="100%" height="35%" style="table-layout:fixed;" cellpadding='0' cellspacing='0'>
       <tr>
-        <td width="38%">Hex view:</td>
-        <td width="44%">Decimal view:</td>
-        <td width="18%">Text view:</td>
+        <td width="38%">&nbsp;Hex view:</td>
+        <td width="44%">&nbsp;Decimal view:</td>
+        <td width="18%">&nbsp;Text view:</td>
       </tr>
-      <tr height="98%">
+      <tr height="99%">
         <td width="38%">
           <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
         </td>
