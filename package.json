@@ -21,5 +21,11 @@
   },
   "dependencies": {
     "jquery": "^3.3.1"
+  },
+  "scripts": {
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=res/icons/db_search.icns --prune=true --out=release-builds",
+    "package-win32": "electron-packager . sqlite3-page-explorer --overwrite --asar=true --platform=win32 --arch=ia32 --icon=res/icons/db_search.ico --prune=true --out=release-builds --version-string.CompanyName=\"Siara Logics (cc)\" --version-string.FileDescription=\"Visually explore the contents of each page in any SQLite3 database\" --version-string.ProductName=\"Sqlite Page Explorer\"",
+    "package-linux": "electron-packager . sqlite3-page-explorer --overwrite --asar=true --platform=linux --arch=x64 --icon=res/icons/db_search.png --prune=true --out=release-builds",
+    "create-installer-mac": "electron-installer-dmg ./release-builds/sqlite3_page_dissector-darwin-x64/sqlite3_page_dissector.app sqlite3_page_explorer-app --out=release-builds --overwrite --icon=res/icons/db_search.icns"
   }
 }

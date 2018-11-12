@@ -8,6 +8,13 @@ SQLite is a self-contained, high-reliability, embedded, full-featured, public-do
 
 SQLite is an embedded SQL database engine. Unlike most other SQL databases, SQLite does not have a separate server process. SQLite reads and writes directly to ordinary disk files. A complete SQL database with multiple tables, indices, triggers, and views, is contained in a single disk file. The database file format is cross-platform - you can freely copy a database between 32-bit and 64-bit systems or between big-endian and little-endian architectures. These features make SQLite a popular choice as an Application File Format. SQLite database files are a recommended storage format by the US Library of Congress.
 
+# Installation
+
+Please see releases section above for MacOS, Windows and Linux platforms.
+
+- For MacOS, dmg installer is available. You may need to Open `System Preferences` -> `Security & Privacy` and click `Open Anyway` in the `General` section to install on your Mac.
+- For Windows and Linux, the package is available as a Zip archive. Please unzip into a folder and click on the executable with the `Database` icon.
+
 # User guide
 
 On clicking the `Open database` button, the user can select the database file to explore.  The application opens the header, finds out the page size and provides links for the user to expand the `Header` and `Page 1`.

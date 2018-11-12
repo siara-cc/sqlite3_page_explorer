@@ -5,6 +5,7 @@ Thumbs.db
 
 /dist
 /temp
+/release-builds
 
 # ignore everything in 'app' folder what had been generated from 'src' folder
 /app/app.js
