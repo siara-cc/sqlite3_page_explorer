@@ -104,10 +104,10 @@
     }
     function getFloatValue(arr, pos) {
       var buffer = new ArrayBuffer(8);
-      for (var i = 0; i < 8; i++) {
-        buffer[i] = arr[pos + i];
-      }
       var dv = new DataView(buffer);
+      for (var i = 0; i < 8; i++) {
+        dv.setUint8(i, arr[pos + i]);
+      }
       return dv.getFloat64(0, false);
     }
     function getVarInt(arr, pos) {
@@ -357,12 +357,12 @@
           case 6:
             hdr += "<td>i" + (colInfo[0] == 5 ? "48" : "64") + "</td>";
             det += getIntValue(arr, dataPtr, colInfo[0] == 5 ? 6 : 8);
-            dataPtr += colInfo;
+            dataPtr += (colInfo[0] == 5 ? 6 : 8);
             break;
           case 7:
             hdr += "<td>f64</td>";
-            det += getFloatValue(arr, dataPtr);
-            dataPtr += colInfo[0];
+            det += getFloatValue(arr, dataPtr).toPrecision();
+            dataPtr += 8;
             break;
           case 10:
           case 11:
