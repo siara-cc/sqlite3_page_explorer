@@ -1,0 +1,110 @@
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+  overflow: hidden;
+  font-family: Verdana, Geneva, sans-serif
+}
+ul {
+  margin: 3px;
+  padding-left: 20px
+}
+li {
+  cursor: pointer
+}
+a {
+  text-decoration: none
+}
+.fancyButton {
+  font-size: 24px;
+  font-weight: bold;
+  display: inline-block;
+  margin: 0 auto;
+  color: #dcfbb4;
+  background-color: green;
+  border: 0.2em solid #d4f7da;
+  transition: all 0.3s;
+  box-sizing: border-box;
+  height: 2em;
+  line-height: 1em;
+  cursor: pointer;
+  box-shadow: 0 0 0 rgba(0,0,0,0.1), inset 0 0 0 rgba(0,0,0,0.1);
+  text-align: center;
+}
+.fancyButton:hover {
+  box-shadow: 0 0 2em rgba(0,0,0,0.1), inset 0 0 1em rgba(0,0,0,0.1);
+  background-color: #29a074;
+}
+.outlineArea {
+  border: solid 1px midnightblue;
+  overflow-y: scroll;
+  color: midnightblue;
+  height: 95%
+}
+.detailArea {
+  height: 95%;
+  padding: 5px;
+  white-space: pre;
+  text-overflow: clip;
+  overflow: auto;
+  color: midnightblue;
+  border: 1px solid midnightblue
+}
+.hexArea {
+  position: relative;
+  height: 95%;
+  padding: 3px;
+  white-space: pre;
+  text-overflow: clip;
+  overflow: auto;
+  border: 1px solid midnightblue;
+  color: midnightblue;
+  font-family: "Courier New", Courier, monospace
+}
+.dbname {
+  color: midnightblue;
+  font-family: Verdana, Geneva, sans-serif
+}
+.bh {
+  title: "B-Tree page header";
+  background: lightskyblue;
+  border: 1px solid blue
+}
+.bca {
+  title: "B-Tree page cell array";
+  background: lightpink;
+  border: 1px solid red
+}
+.bfb {
+  title: "B-Tree page free block";
+  background: lightgreen;
+  border: 1px solid green
+}
+.bc {
+  title: "B-Tree page cell";
+  background: lightyellow;
+  border: 1px solid #501064
+}
+.container {
+  position: relative
+}
+.watermark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 50%;
+  height: 30%;
+  margin: auto;
+  font-size: 24px;
+  font-family: Verdana, Geneva, sans-serif;
+  color: lavender;
+  text-align: center;
+  vertical-align: middle;
+  z-index: -1
+}
+  color: midnightblue;
+  font-family: "Courier New", Courier, monospace
+}

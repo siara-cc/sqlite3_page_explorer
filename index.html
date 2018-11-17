@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Sqlite3 Page explorer</title>
+    <title>Sqlite Page Explorer</title>
     <link rel="stylesheet" type="text/css" href="index.css"/>
     <script src="index.js"/>
   </head>
@@ -14,22 +14,11 @@
 
   <body>
     <table width="100%"><tr>
-      <td><img src="res/img/siara_cc_3d.png" width="72px" height="42px"></img></td>
-      <td align="left" style="color: green"><h1>Sqlite3 Page explorer</h1></td>
+      <td><img src="res/img/siara_cc_3d_sqlite.png" width="72px" height="42px"></img></td>
+      <td align="left" style="color: green"><h1>Sqlite Page Explorer</h1></td>
       <td style="text-align: right" ><input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/></td>
     </tr></table>
     <table width="100%" height="40%" style="table-layout:fixed;" cellpadding='0' cellspacing='0'>
-      <!-- <tr>
-          <td width="35%">
-            <span>Page list:</span>
-            <span style="float:right">
-              <input type="button" value="Open page:" onclick="openPage('', this.parentElement.children[1].value, 'u', false);"/>
-              <input type="text" size="5" value="2" onkeypress="return isNumberKey(event);" style="text-align: right"/>
-              &nbsp;&nbsp;
-            </span>
-          </td>
-          <td width="65%">Page details:</td>
-      </tr> -->
       <tr height="100%">
           <td width="35%" class="container">
             <div class="watermark">Page outline</div>
@@ -41,12 +30,7 @@
           </td>
       </tr>
     </table>
-    <table width="100%" height="35%" style="table-layout:fixed;">
-      <!-- <tr>
-        <td width="38%"><span>Hex view:</td>
-        <td width="44%">Decimal view:</td>
-        <td width="18%">Text view:</td>
-      </tr> -->
+    <table width="100%" height="35%" style="table-layout:fixed;" cellpadding='0' cellspacing='0'>
       <tr height="100%">
         <td width="38%" class="container">
           <div class="watermark">Hex view</div>
@@ -64,6 +48,10 @@
     </table>
     <table width="100%"><tr>
       <td class="dbname" id="dbName"></td>
+      <td>
+        <input type="button" value="Open page:" onclick="openPage('', this.parentElement.children[1].value, 'u', false);"/>
+        <input type="text" size="5" value="2" onkeypress="return isNumberKey(event);" style="text-align: right"/>
+      </td>
       <td style="text-align: right" >
         <a href="https://www.sqlite.org/fileformat.html">&lt;Ref&gt;</a>
         &nbsp;|&nbsp;
