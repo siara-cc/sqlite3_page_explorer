@@ -29,6 +29,8 @@ For each page, the page content in bytes is shown in `Hex`, `Decimal` and `Text`
 
 # Screenshots
 
+![First page](scrshot0.png?raw=true)
+
 ![Schema page](scrshot1.png?raw=true)
 
 ![Table root page](scrshot2.png?raw=true)
