@@ -175,6 +175,10 @@ function showHex(arr, start, ptype) {
 }
 
 function readPage(pageNo, len) {
+  if (!myBinaryFileFD) {
+    alert("File not open");
+    return;
+  }
   var buffer = new Uint8Array(len);
   bytesRead = fs.readSync(myBinaryFileFD, buffer, 0, len, (pageNo - 1) * pageSize);
   if (bytesRead < len) {
@@ -185,6 +189,10 @@ function readPage(pageNo, len) {
 }
 
 function openPage(parentPageId, pageNo, typ, isRoot) {
+  if (!myBinaryFileFD) {
+    alert("File not open");
+    return;
+  }
   typName = (typ == 'b' ? "BTree" : (typ == 'l' ? "LockByte" 
       : (typ == 'ft' ? "FreeTrunk" : (typ == 'fl' ? "FreeLeaf" 
       : (typ == 'o' ? "Overflow" : (typ == 'u' ? "" : "PtrMap"))))));
@@ -439,6 +447,8 @@ function showBTreePage(obj, evt, start) {
 function showFreeTrunkPage(obj, evt, start) {
   var pageNo = parseInt(obj.children.item(0).value);
   var arr = readPage(pageNo, pageSize);
+  if (arr == null)
+    return;
   var nextTrunk = fourBytesToInt(arr, 0);
   var leafCount = fourBytesToInt(arr, 4);
   var det = "";
@@ -466,6 +476,8 @@ function showFreeTrunkPage(obj, evt, start) {
 function showFreeLeafPage(obj, evt, start) {
   var pageNo = parseInt(obj.children.item(0).value);
   var arr = readPage(pageNo, pageSize);
+  if (arr == null)
+    return;
   showHex(arr, start, 0);
   $('#detailArea').empty();
   var ptype = arr[0];
@@ -480,6 +492,8 @@ function showFreeLeafPage(obj, evt, start) {
 function showPage(obj, evt, start) {
   var pageNo = parseInt(obj.children.item(0).value);
   var arr = readPage(pageNo, pageSize);
+  if (arr == null)
+    return;
   showHex(arr, start, 0);
   $('#detailArea').empty();
   evt.stopPropagation();

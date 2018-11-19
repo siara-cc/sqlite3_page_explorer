@@ -14,6 +14,7 @@ li {
   cursor: pointer
 }
 a {
+  font-family: Arial Narrow, Arial, sans-serif;
   text-decoration: none
 }
 .fancyButton {
@@ -37,9 +38,10 @@ a {
   background-color: #29a074;
 }
 .outlineArea {
-  border: solid 1px midnightblue;
+  border: solid 1px #0F0F0F;
+  margin: 0px;
   overflow-y: scroll;
-  color: midnightblue;
+  color: #0F0F0F;
   height: 95%
 }
 .detailArea {
@@ -48,8 +50,8 @@ a {
   white-space: pre;
   text-overflow: clip;
   overflow: auto;
-  color: midnightblue;
-  border: 1px solid midnightblue
+  color: #0F0F0F;
+  border: 1px solid #0F0F0F
 }
 .hexArea {
   position: relative;
@@ -58,12 +60,12 @@ a {
   white-space: pre;
   text-overflow: clip;
   overflow: auto;
-  border: 1px solid midnightblue;
-  color: midnightblue;
+  border: 1px solid #0F0F0F;
+  color: #0F0F0F;
   font-family: "Courier New", Courier, monospace
 }
 .dbname {
-  color: midnightblue;
+  color: #0F0F0F;
   font-family: Verdana, Geneva, sans-serif
 }
 .bh {
@@ -104,7 +106,4 @@ a {
   text-align: center;
   vertical-align: middle;
   z-index: -1
-}
-  color: midnightblue;
-  font-family: "Courier New", Courier, monospace
 }
