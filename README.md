@@ -12,7 +12,7 @@ SQLite is an embedded SQL database engine. Unlike most other SQL databases, SQLi
 
 Please see releases section above for MacOS, Windows and Linux platforms.
 
-- For MacOS, dmg installer is available. You may need to Open `System Preferences` -> `Security & Privacy` and click `Open Anyway` in the `General` section to install on your Mac.
+- For MacOS, dmg installer is available.
 - For Windows and Linux, the package is available as a Zip archive. Please unzip into a folder and click on the executable with the `Database` icon.
 
 # User guide
