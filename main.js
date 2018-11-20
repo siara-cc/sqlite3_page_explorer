@@ -10,12 +10,13 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow(options)
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
-
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()
 
+  // and load the index.html of the app.
+  //mainWindow.loadFile('index.html')
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
