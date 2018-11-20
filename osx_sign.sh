@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o xtrace
+#set -o xtrace
 
 # Name of your app.
 APP="Sqlite Page Explorer"
@@ -17,7 +17,7 @@ LOGINHELPER_PLIST="loginhelper.plist"
 
 FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
 
-#electron-osx-sign "$APP_PATH" --entitlements="$CHILD_PLIST" --entitlements-inherit="$PARENT_PLIST"
+#electron-osx-sign "$APP_PATH" --entitlements="$PARENT_PLIST"
 
 codesign -s "$APP_KEY" -f --entitlements "$CHILD_PLIST" "$FRAMEWORKS_PATH/Electron Framework.framework/Versions/A/Electron Framework"
 codesign -s "$APP_KEY" -f --entitlements "$CHILD_PLIST" "$FRAMEWORKS_PATH/Electron Framework.framework/Versions/A/Libraries/libffmpeg.dylib"

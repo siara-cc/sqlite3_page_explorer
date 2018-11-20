@@ -6,16 +6,8 @@
     <true/>
     <key>com.apple.security.files.user-selected.read-only</key>
     <true/>
-    <key>com.apple.security.network.client</key>
-    <true/>
-    <key>com.apple.security.temporary-exception.shared-preference.read-only</key>
-    <array>
-        <string>com.apple.symbolichotkeys</string>
-    </array>
     <key>com.apple.security.temporary-exception.sbpl</key>
     <array>
-        <string>(allow mach-lookup (global-name-regex #"^org.chromium.Chromium.rohitfork.[0-9]+$"))</string>
-        <string>(allow mach-register (global-name-regex #"^org.chromium.Chromium.rohitfork.[0-9]+$"))</string>
         <string>(allow mach-lookup (global-name-regex #"^cc.siara.sqlitepageexplorer.rohitfork.[0-9]+$"))</string>
         <string>(allow mach-register (global-name-regex #"^cc.siara.sqlitepageexplorer.rohitfork.[0-9]+$"))</string>
     </array>
