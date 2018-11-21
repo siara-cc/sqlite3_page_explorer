@@ -17,7 +17,7 @@ LOGINHELPER_PLIST="loginhelper.plist"
 
 FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
 
-#electron-osx-sign "$APP_PATH" --entitlements="$PARENT_PLIST"
+#electron-osx-sign "$APP_PATH" --entitlements="$PARENT_PLIST" --platform=mas --provisioning-profile=Siara_Logics_cc.provisionprofile --embedded-binary="$APP_PATH/Contents/Resources/app.asar"
 
 codesign -s "$APP_KEY" -f --entitlements "$CHILD_PLIST" "$FRAMEWORKS_PATH/Electron Framework.framework/Versions/A/Electron Framework"
 codesign -s "$APP_KEY" -f --entitlements "$CHILD_PLIST" "$FRAMEWORKS_PATH/Electron Framework.framework/Versions/A/Libraries/libffmpeg.dylib"
@@ -32,7 +32,8 @@ codesign -s "$APP_KEY" -f --entitlements "$CHILD_PLIST" "$APP_PATH/Contents/Fram
 # codesign -s "$APP_KEY" -f --entitlements "$CHILD_PLIST" "$APP_PATH/Contents/MacOS/$APP"
 codesign -s "$APP_KEY" -f --entitlements "$PARENT_PLIST" "$APP_PATH"
 
-#productbuild --component "$APP_PATH" /Applications --sign "$INSTALLER_KEY" "$RESULT_PATH"
+productbuild --component "$APP_PATH" /Applications --sign "$INSTALLER_KEY" "$RESULT_PATH"
 #productbuild --component HelloCordova.app /Applications --sign "3rd Party Mac Developer Installer: Arundale Ramanathan (K4J7VPDHY4)" .
 #codesign -s "3rd Party Mac Developer Application: Arundale Ramanathan (K4J7VPDHY4)" -f --entitlements child.plist HelloCordova.app
 #spctl --ignore-cache --no-cache --assess --type execute --verbose=4 sign/Electron.app/Contents/Frameworks/Electron\ Helper.app
+#find -H release-builds/Sqlite\ Page\ Explorer-mas-x64/Sqlite\ Page\ Explorer.app -print0 | xargs -0 file | grep "Mach-O .*executable"

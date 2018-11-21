@@ -362,7 +362,7 @@ function showBTreePage(obj, evt, start) {
     det += "<br>Right most pointer: <b>" + rightPtr + "</b>&nbsp;<input type='button' value='Open' onclick='openPage(\"" + pageId + "\"," + rightPtr + ", \"b\", false)'/>";
     hdrSize = 12;
   }
-  det += "<br><b>Cells:</b><br/>";
+  det += "<br><br><b>Cells:</b><br/>";
   det += "<table cellspacing='1' cellpadding='1' border='1'>";
   det += "<thead><td>Page</td><td>Row ID</td><td>Len</td><td>Payload</td><td>Overflow</td></thead>";
   for (var cell = 0; cell < cellCount; cell++) {

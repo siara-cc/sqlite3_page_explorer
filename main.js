@@ -4,7 +4,8 @@ const {app, BrowserWindow} = require('electron')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
-var options = {backgroundColor: '#ffffff', width: 1000, height: 600}
+
+var options = {backgroundColor: '#ffffff', width: 1024, height: 600}
 
 function createWindow () {
   // Create the browser window.
