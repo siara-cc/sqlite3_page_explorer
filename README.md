@@ -12,7 +12,7 @@ SQLite is an embedded SQL database engine. Unlike most other SQL databases, SQLi
 
 Please see releases section above for MacOS, Windows and Linux platforms.
 
-- For MacOS, dmg installer is available.
+- For MacOS, installer is available.
 - For Windows and Linux, the package is available as a Zip archive. Please unzip into a folder and click on the executable with the `Database` icon.
 
 # Applications:
@@ -48,3 +48,7 @@ For each page, the page content in bytes is shown in `Hex`, `Decimal` and `Text`
 ![Schema page](scrshot1.png?raw=true)
 
 ![Table root page](scrshot2.png?raw=true)
+
+# Support
+
+If you face any problem, create issue in this website, or write to the author (Arundale Ramanathan) at arun@siara.cc.
