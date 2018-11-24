@@ -12,7 +12,7 @@ SQLite is an embedded SQL database engine. Unlike most other SQL databases, SQLi
 
 Please see releases section above for MacOS, Windows and Linux platforms.
 
-- For MacOS, installer is available.
+- For MacOS, please [install from App Store](https://itunes.apple.com/us/app/sqlite-page-explorer/id1444019689?ls=1&mt=12)
 - For Windows and Linux, the package is available as a Zip archive. Please unzip into a folder and click on the executable with the `Database` icon.
 
 # Applications:
