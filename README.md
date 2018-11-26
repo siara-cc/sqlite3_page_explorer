@@ -17,7 +17,7 @@ Please see releases section above for MacOS, Windows and Linux platforms.
 
 # Applications:
 
-- Viewing internal organisation of Sqlite databases for software development and troubleshooting
+- Viewing internal organisation of Sqlite databases for software development, ethical hacking and troubleshooting
 - Studying the format of Sqlite databases for academic purposes
 - Forensic investigators may use it to view data from deleted pages
 
