@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Sqlite Page Explorer</title>
     <link rel="stylesheet" type="text/css" href="index.css"/>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <script src="index.js"/>
   </head>
 
@@ -11,7 +12,7 @@
   <script>window.$ = window.jQuery = require('jquery');</script>
   <script>if (window.module) module = window.module;</script>
 
-  <body>
+  <body style="overflow: scroll">
     <table width="100%"><tr>
       <td>
         <img src="res/img/siara_cc_3d.png" width="84px" height="48px"></img>
@@ -20,34 +21,34 @@
       <td style="text-align: left; margin: 0px; padding: 0px; color: green"><h1>Sqlite Page Explorer</h1></td>
       <td style="text-align: right" ><input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/></td>
     </tr></table>
-    <table width="100%" height="40%" style="table-layout:fixed;" cellpadding='0' cellspacing='0'>
-      <tr height="100%">
-          <td width="35%" class="container">
+    <div style="height:35%; max-height:35%; width:100%">
+      <div class="w3-row-padding w3-grayscale" style="height:100%; width:100%">
+          <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:35%">
             <div class="watermark">Page outline</div>
             <ul class="outlineArea" id="mainOutline"></ul>
-          </td>
-          <td width="65%" class="container">
+          </div>
+          <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:65%">
             <div class="watermark">Page contents</div>
             <div class="detailArea" id="detailArea"></div>
-          </td>
-      </tr>
-    </table>
-    <table width="100%" height="35%" style="table-layout:fixed;" cellpadding='0' cellspacing='0'>
-      <tr height="100%">
-        <td width="38%" class="container">
+          </div>
+      </div>
+    </div>
+    <div style="height:30%; max-height:30%; width:100%">
+      <div class="w3-row-padding w3-grayscale" style="height:100%; width:100%">
+        <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:38%">
           <div class="watermark">Hex view</div>
           <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
-        </td>
-        <td width="44%" class="container">
+        </div>
+        <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:44%">
           <div class="watermark">Decimal view</div>
           <div class="hexArea" id="hexArea2" onscroll="syncScroll(this);"></div>
-        </td>
-        <td width="18%" class="container">
+        </div>
+        <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:18%">
           <div class="watermark">Text view</div>
           <div class="hexArea" id="hexArea3" onscroll="syncScroll(this);"></div>
-        </td>
-      </tr>
-    </table>
+        </div>
+      </div>
+    </div>
     <table width="100%"><tr>
       <td class="dbname" id="dbName"></td>
       <td>
