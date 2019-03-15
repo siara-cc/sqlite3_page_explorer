@@ -89,6 +89,7 @@ a {
   border: 1px solid #501064
 }
 .container {
+  height:100%;
   position: relative
 }
 .watermark {
@@ -106,4 +107,14 @@ a {
   text-align: center;
   vertical-align: middle;
   z-index: -1
+}
+@media screen and (min-width: 601px) {
+  .hdr {
+    font-size: 35px;
+  }
+}
+@media screen and (max-width: 600px) {
+  .hdr {
+    font-size: 25px;
+  }
 }

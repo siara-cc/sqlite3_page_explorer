@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Sqlite Page Explorer</title>
     <link rel="stylesheet" type="text/css" href="index.css"/>
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="w3.css">
     <script src="index.js"/>
   </head>
 
@@ -13,49 +13,53 @@
   <script>if (window.module) module = window.module;</script>
 
   <body style="overflow: scroll">
-    <table width="100%"><tr>
-      <td>
-        <img src="res/img/siara_cc_3d.png" width="84px" height="48px"></img>
-        <img src="res/icons/db_search.png" width="48px" height="48px"></img>
-      </td>
-      <td style="text-align: left; margin: 0px; padding: 0px; color: green"><h1>Sqlite Page Explorer</h1></td>
-      <td style="text-align: right" ><input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/></td>
-    </tr></table>
-    <div style="height:35%; max-height:35%; width:100%">
-      <div class="w3-row-padding w3-grayscale" style="height:100%; width:100%">
-          <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:35%">
+    <div class="w3-row" style="width:100%; padding: 5px">
+      <div class="w3-col m3 w3-container" style="height:100%; min-width:10%">
+        <nobr>
+          <img src="res/img/siara_cc_3d.png" width="84px" height="48px"></img>
+          <img src="res/icons/db_search.png" width="48px" height="48px"></img>
+        </nobr>
+      </div>
+      <div class="w3-col m3 w3-container hdr" 
+        style="color: green; height:100%; min-width:50%">Sqlite Page Explorer</div>
+      <div class="w3-col m3 w3-container" style="text-align: right; height:100%; min-width:10%" >
+        <input type="button" class="w3-btn w3-green" onclick="selectFile();" value="Open database"/>
+      </div>
+    </div>
+    <div style="height:40%; max-height:40%; width:100%">
+      <div class="w3-row" style="height:100%; width:100%">
+          <div class="w3-col m2 w3-container container" style="min-width:35%; padding: 5px">
             <div class="watermark">Page outline</div>
             <ul class="outlineArea" id="mainOutline"></ul>
           </div>
-          <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:65%">
+          <div class="w3-col m2 w3-container container" style="min-width:65%; padding: 5px">
             <div class="watermark">Page contents</div>
             <div class="detailArea" id="detailArea"></div>
           </div>
       </div>
     </div>
-    <div style="height:30%; max-height:30%; width:100%">
-      <div class="w3-row-padding w3-grayscale" style="height:100%; width:100%">
-        <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:38%">
+    <div style="height:35%; max-height:35%; width:100%">
+      <div class="w3-row" style="height:100%; width:100%">
+        <div class="w3-col m3 w3-container container" style="min-width:37%; padding: 5px">
           <div class="watermark">Hex view</div>
           <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
         </div>
-        <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:44%">
+        <div class="w3-col m3 w3-container container" style="min-width:38%; padding: 5px">
           <div class="watermark">Decimal view</div>
           <div class="hexArea" id="hexArea2" onscroll="syncScroll(this);"></div>
         </div>
-        <div class="w3-col m4 w3-margin-bottom w3-container container" style="height:100%; min-width:18%">
+        <div class="w3-col m3 w3-container container" style="min-width:4%; padding: 5px">
           <div class="watermark">Text view</div>
           <div class="hexArea" id="hexArea3" onscroll="syncScroll(this);"></div>
         </div>
       </div>
     </div>
-    <table width="100%"><tr>
-      <td class="dbname" id="dbName"></td>
-      <td>
-        <input type="button" value="Open page:" onclick="openPage('', this.parentElement.children[1].value, 'u', false);"/>
+    <div class="w3-row" style="width:100%; padding: 5px">
+      <div class="w3-col m3 w3-container dbname" style="height:100%; min-width:40%">
+        <input type="button" class="w3-btn w3-green" value="Open page:" onclick="openPage('', this.parentElement.children[1].value, 'u', false);"/>
         <input type="text" size="5" value="2" onkeypress="return isNumberKey(event);" style="text-align: right"/>
-      </td>
-      <td style="text-align: right" >
+      </div>
+      <div class="w3-col m3 w3-container dbname" style="height:100%; min-width:60%; text-align: right">
         <a href="https://www.sqlite.org/fileformat.html">&lt;Ref&gt;&nbsp;</a>
         &nbsp;|&nbsp;
         <a href="https://github.com/siara-cc">&copy;&nbsp;Siara Logics (cc) 2015-18</a>
@@ -65,8 +69,8 @@
         <a href="http://htmlpreview.github.com/?https://github.com/siara-cc/sqlite3_page_explorer/blob/master/eula.htm">License</a>
         &nbsp;|&nbsp;
         <a href="http://htmlpreview.github.com/?https://github.com/siara-cc/sqlite3_page_explorer/blob/master/privacy.htm">Privacy</a>
-      </td>
-    </tr></table>
+      </div>
+    </div>
   </body>
 
 </html>
