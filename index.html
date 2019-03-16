@@ -27,32 +27,28 @@
         <input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/>
       </div>
     </div>
-    <div style="height:40%; max-height:40%; width:100%">
-      <div class="w3-row" style="height:100%; width:100%">
-          <div class="w3-col m2 w3-container container" style="min-width:35%; padding: 5px">
-            <div class="watermark">Page outline</div>
-            <ul class="outlineArea" id="mainOutline"></ul>
-          </div>
-          <div class="w3-col m2 w3-container container" style="min-width:65%; padding: 5px">
-            <div class="watermark">Page contents</div>
-            <div class="detailArea" id="detailArea"></div>
-          </div>
+    <div class="w3-row" style="height:40%; max-height:40%; width:100%">
+      <div class="w3-col m2 w3-container container" style="min-width:35%; padding: 5px">
+        <div class="watermark">Page outline</div>
+        <ul class="outlineArea" id="mainOutline"></ul>
+      </div>
+      <div class="w3-col m2 w3-container container" style="min-width:65%; padding: 5px">
+        <div class="watermark">Page contents</div>
+        <div class="detailArea" id="detailArea"></div>
       </div>
     </div>
-    <div style="height:35%; max-height:35%; width:100%">
-      <div class="w3-row" style="height:100%; width:100%">
-        <div class="w3-col m3 w3-container container" style="min-width:37%; padding: 5px">
-          <div class="watermark">Hex view</div>
-          <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
-        </div>
-        <div class="w3-col m4 w3-container container" style="min-width:44%; padding: 5px">
-          <div class="watermark">Decimal view</div>
-          <div class="hexArea" id="hexArea2" onscroll="syncScroll(this);"></div>
-        </div>
-        <div class="w3-col m2 w3-container container" style="min-width:19%; padding: 5px">
-          <div class="watermark">Text view</div>
-          <div class="hexArea" id="hexArea3" onscroll="syncScroll(this);"></div>
-        </div>
+    <div class="w3-row" style="height:35%; max-height:35%; width:100%">
+      <div class="w3-col m3 w3-container container" style="min-width:37%; padding: 5px">
+        <div class="watermark">Hex view</div>
+        <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
+      </div>
+      <div class="w3-col m4 w3-container container" style="min-width:44%; padding: 5px">
+        <div class="watermark">Decimal view</div>
+        <div class="hexArea" id="hexArea2" onscroll="syncScroll(this);"></div>
+      </div>
+      <div class="w3-col m2 w3-container container" style="min-width:19%; padding: 5px">
+        <div class="watermark">Text view</div>
+        <div class="hexArea" id="hexArea3" onscroll="syncScroll(this);"></div>
       </div>
     </div>
     <div class="w3-row dbname" style="width:100%; padding: 5px; vertical-align: center">
