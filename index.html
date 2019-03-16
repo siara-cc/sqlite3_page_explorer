@@ -13,6 +13,7 @@
   <script>if (window.module) module = window.module;</script>
 
   <body style="overflow: scroll">
+    <br/>
     <div class="w3-row" style="width:100%; padding: 5px">
       <div class="w3-col m3 w3-container" style="height:100%; min-width:10%">
         <nobr>
@@ -21,9 +22,9 @@
         </nobr>
       </div>
       <div class="w3-col m3 w3-container hdr" 
-        style="color: green; height:100%; min-width:50%">Sqlite Page Explorer</div>
+        style="color: green; height:100%; min-width:40%"><b><nobr>Sqlite Page Explorer</nobr></b></div>
       <div class="w3-col m3 w3-container" style="text-align: right; height:100%; min-width:10%" >
-        <input type="button" class="w3-btn w3-green" onclick="selectFile();" value="Open database"/>
+        <input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/>
       </div>
     </div>
     <div style="height:40%; max-height:40%; width:100%">
@@ -44,31 +45,35 @@
           <div class="watermark">Hex view</div>
           <div class="hexArea" id="hexArea1" onscroll="syncScroll(this);"></div>
         </div>
-        <div class="w3-col m3 w3-container container" style="min-width:38%; padding: 5px">
+        <div class="w3-col m4 w3-container container" style="min-width:44%; padding: 5px">
           <div class="watermark">Decimal view</div>
           <div class="hexArea" id="hexArea2" onscroll="syncScroll(this);"></div>
         </div>
-        <div class="w3-col m3 w3-container container" style="min-width:4%; padding: 5px">
+        <div class="w3-col m2 w3-container container" style="min-width:19%; padding: 5px">
           <div class="watermark">Text view</div>
           <div class="hexArea" id="hexArea3" onscroll="syncScroll(this);"></div>
         </div>
       </div>
     </div>
-    <div class="w3-row" style="width:100%; padding: 5px">
-      <div class="w3-col m3 w3-container dbname" style="height:100%; min-width:40%">
-        <input type="button" class="w3-btn w3-green" value="Open page:" onclick="openPage('', this.parentElement.children[1].value, 'u', false);"/>
+    <div class="w3-row dbname" style="width:100%; padding: 5px; vertical-align: center">
+      <div class="w3-col m2 w3-container" style="height:100%">
+        DB: <span id="dbName"><em>Not opened yet</em></span>
+      </div>
+      <div class="w3-col m3 w3-container" style="height:100%">
+        <a class="w3-hover-green" href="javascript:var x=1"
+          onclick="openPage('', this.parentElement.children[1].value, 'u', false);">Open page:</a>
         <input type="text" size="5" value="2" onkeypress="return isNumberKey(event);" style="text-align: right"/>
       </div>
-      <div class="w3-col m3 w3-container dbname" style="height:100%; min-width:60%; text-align: right">
-        <a href="https://www.sqlite.org/fileformat.html">&lt;Ref&gt;&nbsp;</a>
+      <div class="w3-col m5 w3-container w3-right-align" style="height:100%">
+        <a class="w3-hover-green" href="https://www.sqlite.org/fileformat.html">&lt;Ref&gt;</a>
         &nbsp;|&nbsp;
-        <a href="https://github.com/siara-cc">&copy;&nbsp;Siara Logics (cc) 2015-18</a>
+        <a class="w3-hover-green" href="https://github.com/siara-cc">&copy;&nbsp;Siara Logics (cc) 2015-19</a>
         &nbsp;|&nbsp;
-        <a href="https://github.com/siara-cc/sqlite3_page_explorer">GitHub</a>
+        <a class="w3-hover-green" href="https://github.com/siara-cc/sqlite3_page_explorer">GitHub</a>
         &nbsp;|&nbsp;
-        <a href="http://htmlpreview.github.com/?https://github.com/siara-cc/sqlite3_page_explorer/blob/master/eula.htm">License</a>
+        <a class="w3-hover-green" href="http://htmlpreview.github.com/?https://github.com/siara-cc/sqlite3_page_explorer/blob/master/eula.htm">License</a>
         &nbsp;|&nbsp;
-        <a href="http://htmlpreview.github.com/?https://github.com/siara-cc/sqlite3_page_explorer/blob/master/privacy.htm">Privacy</a>
+        <a class="w3-hover-green" href="http://htmlpreview.github.com/?https://github.com/siara-cc/sqlite3_page_explorer/blob/master/privacy.htm">Privacy</a>
       </div>
     </div>
   </body>
