@@ -10,10 +10,13 @@ SQLite is an embedded SQL database engine. Unlike most other SQL databases, SQLi
 
 # Installation
 
-Please see releases section above for MacOS, Windows and Linux platforms.
+It is available in App stores for various platforms:
 
-- For MacOS, please [install from App Store](https://itunes.apple.com/us/app/sqlite-page-explorer/id1444019689?ls=1&mt=12)
-- For Windows and Linux, the package is available as a Zip archive. Please unzip into a folder and click on the executable with the `Database` icon.
+- [MacOS](https://itunes.apple.com/us/app/sqlite-page-explorer/id1444019689)
+- [iPhone/iPad](https://itunes.apple.com/us/app/sqlite-page-explorer/id1466475834)
+- [Android](https://play.google.com/store/apps/details?id=cc.siara.xroads)
+- [Windows 10 UWP](https://www.microsoft.com/en-us/p/sqlite-page-explorer/9mtkt38glgc0)
+- For Linux, the package is available as a Zip archive in the release section. Please unzip into a folder and click on the executable with the `Database` icon.
 
 # Applications:
 
