@@ -14,7 +14,7 @@
   "author": "arun@siara.cc",
   "license": "Apache-2.0",
   "devDependencies": {
-    "electron": "^13.6.6"
+    "electron": "^15.5.5"
   },
   "dependencies": {
     "jquery": "^3.6.0"
