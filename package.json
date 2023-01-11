@@ -17,7 +17,7 @@
     "electron": "^22.0.0"
   },
   "dependencies": {
-    "jquery": "^3.6.2"
+    "jquery": "^3.6.3"
   },
   "scripts": {
     "start": "electron .",
