@@ -1,8 +1,3 @@
-require('./renderer.js')
-const {dialog} = require('electron').remote
-const fs = require('fs');
-
-var myBinaryFileFD = 0;
 var pageSize, usableSize, maxLocal, minLocal, maxLeaf, minLeaf;
 var pageInfo = {uint8arr: null, start: 0, ptype: 0, curPos: 0, cellarr: null, cellend: 0,
                   atype: 'h', firstFreeBlockStart: 0, cellCount: 0, nxtFB: 0};
@@ -175,13 +170,9 @@ function showHex(arr, start, ptype) {
 }
 
 function readPage(pageNo, len) {
-  if (!myBinaryFileFD) {
-    alert("File not open");
-    return;
-  }
-  var buffer = new Uint8Array(len);
-  bytesRead = fs.readSync(myBinaryFileFD, buffer, 0, len, (pageNo - 1) * pageSize);
-  if (bytesRead < len) {
+  var data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: (pageNo - 1) * pageSize, byteCount: len});
+  var buffer = data.bytesRead;
+  if (buffer == null || buffer == undefined || buffer.length < len) {
     alert("Unable to read page from file. Read " + bytesRead + " bytes.");
     return null;
   }
@@ -189,10 +180,6 @@ function readPage(pageNo, len) {
 }
 
 function openPage(parentPageId, pageNo, typ, isRoot) {
-  if (!myBinaryFileFD) {
-    alert("File not open");
-    return;
-  }
   typName = (typ == 'b' ? "BTree" : (typ == 'l' ? "LockByte" 
       : (typ == 'ft' ? "FreeTrunk" : (typ == 'fl' ? "FreeLeaf" 
       : (typ == 'o' ? "Overflow" : (typ == 'u' ? "" : "PtrMap"))))));
@@ -517,22 +504,17 @@ function showPage1(obj, evt) {
 
 function selectFile() {
   try {
-    dialog.showOpenDialog(function (fileNames) {
+        var data = window.api.sendSync('toMain', {cmd: 'openDialog'});
+        fileNames = data.fileNames;
         if (fileNames === undefined) {
-          alert("No file selected");
+            alert("No file selected");
         } else {
-          if (myBinaryFileFD != 0) {
-              fs.close(myBinaryFileFD, (err) => {
-                if (err) throw err;
-                myBinaryFileFD = 0;
-              });
-          }
-          $('#dbName').empty().append(fileNames[0]);
-          fs.open(fileNames[0], 'r', (err, fd) => {
-            myBinaryFileFD = fd;
-            if (err) throw err;
-            var buffer = new Uint8Array(100);
-            var bytesRead = fs.readSync(fd, buffer, 0, 100, 0);
+            data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: 100});
+            var buffer = data.bytesRead;
+            if (buffer == null || buffer == undefined || buffer.length < 100) {
+              alert("Error reading header");
+              return;
+            }
             if (buffer[0] != 83 || buffer[1] != 81 || buffer[2] != 76 || buffer[3] != 105
                    || buffer[4] != 116 || buffer[5] != 101 || buffer[6] != 32 || buffer[7] != 102
                    || buffer[8] != 111 || buffer[9] != 114 || buffer[10] != 109 || buffer[11] != 97
@@ -554,16 +536,19 @@ function selectFile() {
             maxLeaf = Math.floor(usableSize - 35);
             minLeaf = Math.floor((usableSize - 12) * 32 / 255 - 23);
             buffer = new Uint8Array(pageSize);
-            bytesRead = fs.readSync(fd, buffer, 0, pageSize, 0);
+            data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: pageSize});
+            buffer = data.bytesRead;
+            if (buffer == null || buffer == undefined || buffer.length < pageSize) {
+              alert("Error reading header");
+              return;
+            }
             $('#mainOutline').append('<li id="r0" onclick="showPage1(this, event)">Root page<input type="hidden" value="1"/><ul></ul></li>');
             var notification = new Notification('Database loaded', {
               body: 'DB Loaded. Double click on Header or Pages to show details',
               title: "Loaded"
             });
             $('.watermark').empty();
-          });
         }
-    }); 
   } catch (err) {
       alert(err);
       window.close();

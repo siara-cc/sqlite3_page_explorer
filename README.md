@@ -8,6 +8,19 @@ SQLite is a self-contained, high-reliability, embedded, full-featured, public-do
 
 SQLite is an embedded SQL database engine. Unlike most other SQL databases, SQLite does not have a separate server process. SQLite reads and writes directly to ordinary disk files. A complete SQL database with multiple tables, indices, triggers, and views, is contained in a single disk file. The database file format is cross-platform - you can freely copy a database between 32-bit and 64-bit systems or between big-endian and little-endian architectures. These features make SQLite a popular choice as an Application File Format. SQLite database files are a recommended storage format by the US Library of Congress.
 
+# Getting started
+
+Install Node, Electron in your PC, clone this repo, `cd` into it and run:
+
+```sh
+sudo npm i electron -g
+git clone https://github.com/siara-cc/sqlite3_page_explorer
+cd sqlite3_page_explorer
+electron .
+```
+
+This Electron application uses secure `ipc` for communicating between browser and system processes.
+
 # Installation
 
 It is available in App stores for various platforms:

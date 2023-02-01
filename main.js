@@ -1,61 +1,66 @@
-// Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const {
+  app,
+  BrowserWindow,
+  ipcMain
+} = require("electron");
+const path = require("path");
+const fs = require("fs");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let win;
 
-var options = {backgroundColor: '#ffffff', width: 1024, height: 600}
+async function createWindow() {
 
-function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow(options)
-
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools()
-
-  // and load the index.html of the app.
-  //mainWindow.loadFile('index.html')
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
-  
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null
-  })
-  var handleRedirect = (e, url) => {
-    if(url != mainWindow.webContents.getURL()) {
-      e.preventDefault()
-      require('electron').shell.openExternal(url)
+  win = new BrowserWindow({
+    width: 1024,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: false, // is default value after Electron v5
+      contextIsolation: true, // protect against prototype pollution
+      enableRemoteModule: false, // turn off remote
+      preload: path.join(__dirname, "preload.js") // use a preload script
     }
-  }
-  mainWindow.webContents.on('will-navigate', handleRedirect)
-  mainWindow.webContents.on('new-window', handleRedirect)
+  });
+
+  // Load app
+  win.loadFile(path.join(__dirname, "index.html"));
+
+  // rest of code..
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on("ready", createWindow);
 
-// Quit when all windows are closed.
-app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  //if (process.platform !== 'darwin') {
-    app.quit()
-  //}
-})
-
-app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
+var myBinaryFileFD = 0;
+ipcMain.on("toMain", (event, args) => {
+  switch (args.cmd) {
+    case "openDialog":
+      const { dialog } = require('electron')
+      result = dialog.showOpenDialogSync({ properties: ['openFile'] });
+      //win.webContents.send("toMainSync", {cmd: args.cmd, fileNames: result});
+      try {
+          if (myBinaryFileFD != 0)
+            fs.closeSync(myBinaryFileFD);
+          myBinaryFileFD = fs.openSync(result[0], "r");
+      } catch (e) {
+        console.log("Error opening file" + e);
+      }
+      event.returnValue = {cmd: args.cmd, fileNames: result};
+      break;
+    case "readFile":
+      var pos = args.fromPos;
+      var byteCount = args.byteCount;
+      var buffer = new Uint8Array(byteCount);
+      try {
+        var bytesRead = fs.readSync(myBinaryFileFD, buffer, 0, byteCount, pos);
+        if (bytesRead < byteCount)
+          console.log("Could not read data as expected");
+      } catch (e) {
+        console.log("Error opening file" + e);
+      }
+      //win.webContents.send("fromMain", {cmd: args.cmd, bytesRead: buffer});
+      event.returnValue = {cmd: args.cmd, bytesRead: buffer};
+      break;
   }
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+});
