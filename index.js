@@ -502,6 +502,58 @@ function showPage1(obj, evt) {
   showBTreePage(obj, evt, 100);
 }
 
+function loadCmdLineFile() {
+  var args = window.api.sendSync('toMain', {cmd: 'getProcArgs'});
+  if (args.length > 2) {
+    if (window.api.sendSync('toMain', {cmd: 'openFile', path: args[2]}))
+      loadFile();
+      $('#dbName').empty().append(args[2]);
+  }
+}
+
+function loadFile() {
+  data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: 100});
+  var buffer = data.bytesRead;
+  if (buffer == null || buffer == undefined || buffer.length < 100) {
+    alert("Error reading header");
+    return;
+  }
+  if (buffer[0] != 83 || buffer[1] != 81 || buffer[2] != 76 || buffer[3] != 105
+         || buffer[4] != 116 || buffer[5] != 101 || buffer[6] != 32 || buffer[7] != 102
+         || buffer[8] != 111 || buffer[9] != 114 || buffer[10] != 109 || buffer[11] != 97
+         || buffer[12] != 116 || buffer[13] != 32 || buffer[14] != 51 || buffer[15] != 0) {
+      alert("Selected file is not SQLite database");
+      return;
+  }
+  $('#mainOutline').empty().append('<li onclick="showHeader(this)">Header</li>');
+  $('#detailArea').empty();
+  $('#hexArea1').empty();
+  $('#hexArea2').empty();
+  $('#hexArea3').empty();
+  pageSize = bytesToInt(buffer[16], buffer[17]);
+  if (pageSize == 1)
+      pageSize = 65536;
+  usableSize = pageSize - buffer[20];
+  maxLocal = Math.floor((usableSize - 12) * 64 / 255 - 23);
+  minLocal = Math.floor((usableSize - 12) * 32 / 255 - 23);
+  maxLeaf = Math.floor(usableSize - 35);
+  minLeaf = Math.floor((usableSize - 12) * 32 / 255 - 23);
+  buffer = new Uint8Array(pageSize);
+  data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: pageSize});
+  buffer = data.bytesRead;
+  if (buffer == null || buffer == undefined || buffer.length < pageSize) {
+    alert("Error reading header");
+    return;
+  }
+  $('#mainOutline').append('<li id="r0" onclick="showPage1(this, event)">Root page<input type="hidden" value="1"/><ul></ul></li>');
+  var notification = new Notification('Database loaded', {
+    body: 'DB Loaded. Double click on Header or Pages to show details',
+    title: "Loaded"
+  });
+  $('.watermark').empty();
+
+}
+
 function selectFile() {
   try {
         var data = window.api.sendSync('toMain', {cmd: 'openDialog'});
@@ -509,45 +561,8 @@ function selectFile() {
         if (fileNames === undefined) {
             alert("No file selected");
         } else {
-            data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: 100});
-            var buffer = data.bytesRead;
-            if (buffer == null || buffer == undefined || buffer.length < 100) {
-              alert("Error reading header");
-              return;
-            }
-            if (buffer[0] != 83 || buffer[1] != 81 || buffer[2] != 76 || buffer[3] != 105
-                   || buffer[4] != 116 || buffer[5] != 101 || buffer[6] != 32 || buffer[7] != 102
-                   || buffer[8] != 111 || buffer[9] != 114 || buffer[10] != 109 || buffer[11] != 97
-                   || buffer[12] != 116 || buffer[13] != 32 || buffer[14] != 51 || buffer[15] != 0) {
-                alert("Selected file is not SQLite database");
-                return;
-            }
-            $('#mainOutline').empty().append('<li onclick="showHeader(this)">Header</li>');
-            $('#detailArea').empty();
-            $('#hexArea1').empty();
-            $('#hexArea2').empty();
-            $('#hexArea3').empty();
-            pageSize = bytesToInt(buffer[16], buffer[17]);
-            if (pageSize == 1)
-                pageSize = 65536;
-            usableSize = pageSize - buffer[20];
-            maxLocal = Math.floor((usableSize - 12) * 64 / 255 - 23);
-            minLocal = Math.floor((usableSize - 12) * 32 / 255 - 23);
-            maxLeaf = Math.floor(usableSize - 35);
-            minLeaf = Math.floor((usableSize - 12) * 32 / 255 - 23);
-            buffer = new Uint8Array(pageSize);
-            data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: pageSize});
-            buffer = data.bytesRead;
-            if (buffer == null || buffer == undefined || buffer.length < pageSize) {
-              alert("Error reading header");
-              return;
-            }
-            $('#mainOutline').append('<li id="r0" onclick="showPage1(this, event)">Root page<input type="hidden" value="1"/><ul></ul></li>');
-            var notification = new Notification('Database loaded', {
-              body: 'DB Loaded. Double click on Header or Pages to show details',
-              title: "Loaded"
-            });
-            $('.watermark').empty();
+            loadFile();
+            $('#dbName').empty().append(fileNames[0]);
         }
   } catch (err) {
       alert(err);

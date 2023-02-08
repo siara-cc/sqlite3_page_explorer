@@ -5,6 +5,7 @@ const {
 } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const process = require('process');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -35,6 +36,21 @@ app.on("ready", createWindow);
 var myBinaryFileFD = 0;
 ipcMain.on("toMain", (event, args) => {
   switch (args.cmd) {
+    case "getProcArgs":
+      event.returnValue = process.argv;
+      break;
+    case "openFile":
+      var ret = true;
+      try {
+          if (myBinaryFileFD != 0)
+            fs.closeSync(myBinaryFileFD);
+          myBinaryFileFD = fs.openSync(args.path, "r");
+      } catch (e) {
+        console.log("Error opening file" + e);
+        ret = false;
+      }
+      event.returnValue = ret;
+      break;
     case "openDialog":
       const { dialog } = require('electron')
       result = dialog.showOpenDialogSync({ properties: ['openFile'] });
