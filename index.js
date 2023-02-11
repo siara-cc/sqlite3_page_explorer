@@ -191,8 +191,10 @@ function openPage(parentPageId, pageNo, typ, isRoot) {
       var buffer = readPage(pageNo, 1);
       if (buffer != null) {
         var ptype = buffer[0];
-        if (typ == 'b')
-          typDesc = (ptype == 2 ? "interior index" : (ptype == 5 ? "interior table" : (ptype == 10 ? "leaf index" : "leaf table")));
+        if (typ == 'b') {
+          typDesc = (ptype == 2 ? "interior index" : (ptype == 5 ? "interior table" : (ptype == 10 ? "leaf index" : (ptype == 13 ? "leaf table" : "unknown"))));
+          typ = 'u';
+        }
       }
     }
     if (parentPageId == '') {
