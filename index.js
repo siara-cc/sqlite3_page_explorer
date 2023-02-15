@@ -16,9 +16,9 @@ function bytesToInt(b1, b2) {
 }
 
 function getIntValue(arr, pos, sz) {
-  var ret = 0;
+  var ret = new Number(0);
   for (var i = 0; i < sz; i++) {
-    ret <<= 8;
+    ret *= 256;
     ret += arr[pos + i];
   }
   return ret;
