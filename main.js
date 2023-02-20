@@ -16,7 +16,7 @@ async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     width: 1024,
-    height: 600,
+    height: 768,
     webPreferences: {
       nodeIntegration: false, // is default value after Electron v5
       contextIsolation: true, // protect against prototype pollution
