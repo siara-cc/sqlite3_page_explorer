@@ -23,8 +23,11 @@
       </div>
       <div class="w3-col m6 w3-container hdr" 
         style="color: green; height:100%; min-width:40%"><b><nobr>Sqlite Page Explorer</nobr></b></div>
-      <div class="w3-col m3 w3-container" style="text-align: right; height:100%; min-width:10%" >
-        <input type="button" class="fancyButton" onclick="selectFile();" value="Open database"/>
+      <div class="w3-col m3 w3-container" style="text-align: right; height:100%; min-width:10%">
+        <label class="fancyButton">
+          Open database
+          <input type="file" style="display: none;" onchange="loadFile(event.target)"/>
+        </label>
       </div>
     </div>
     <div class="w3-row" style="height:40%; max-height:40%; width:100%">
