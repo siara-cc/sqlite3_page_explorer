@@ -19,8 +19,6 @@ cd sqlite3_page_explorer
 electron .
 ```
 
-This Electron application uses secure `ipc` for communicating between browser and system processes.
-
 # Installation
 
 It is available in App stores for various platforms:
