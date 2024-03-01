@@ -169,17 +169,16 @@ function showHex(arr, start, ptype) {
   $('#hexArea3').empty().append(txt);
 }
 
-function readPage(pageNo, len) {
-  var data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: (pageNo - 1) * pageSize, byteCount: len});
-  var buffer = data.bytesRead;
-  if (buffer == null || buffer == undefined || buffer.length < len) {
-    alert("Unable to read page from file. Read " + bytesRead + " bytes.");
+async function readPage(pageNo, len) {
+  var buffer = new Uint8Array(await file.slice((pageNo - 1) * pageSize, (pageNo - 1) * pageSize + len).arrayBuffer());
+  if (buffer.length < len) {
+    alert("Unable to read page from file. Read " + buffer.length + " bytes.");
     return null;
   }
   return buffer;
 }
 
-function openPage(parentPageId, pageNo, typ, isRoot) {
+async function openPage(parentPageId, pageNo, typ, isRoot) {
   typName = (typ == 'b' ? "BTree" : (typ == 'l' ? "LockByte" 
       : (typ == 'ft' ? "FreeTrunk" : (typ == 'fl' ? "FreeLeaf" 
       : (typ == 'o' ? "Overflow" : (typ == 'u' ? "" : "PtrMap"))))));
@@ -188,7 +187,7 @@ function openPage(parentPageId, pageNo, typ, isRoot) {
     if (typ == 'ft' || typ == 'fl' || typ == 'u')
        typDesc = "Page";
     if (typ == 'b') {
-      var buffer = readPage(pageNo, 1);
+      var buffer = await readPage(pageNo, 1);
       if (buffer != null) {
         var ptype = buffer[0];
         if (typ == 'b') {
@@ -220,8 +219,8 @@ function openPage(parentPageId, pageNo, typ, isRoot) {
   }
 }
 
-function showHeader(obj) {
-  var arr = readPage(1, 100);
+async function showHeader(obj) {
+  var arr = await readPage(1, 100);
   if (arr == null)
       return;
   showHex(arr, 100, 13);
@@ -329,9 +328,10 @@ function formColDataHtml(arr, cellPtr, pageId) {
   return [hdr, det];
 }
 
-function showBTreePage(obj, evt, start) {
+async function showBTreePage(obj, evt, start) {
+  evt.stopPropagation();
   var pageNo = parseInt(obj.children.item(0).value);
-  var arr = readPage(pageNo, pageSize);
+  var arr = await readPage(pageNo, pageSize);
   if (arr == null)
     return;
   var ptype, ptypestr;
@@ -400,7 +400,7 @@ function showBTreePage(obj, evt, start) {
           var oPageNo = pageNo;
           while (surplus > 0) {
             var toRead = (surplus > ovflwMaxPageBytes ? ovflwMaxPageBytes : surplus) + 4;
-            var obuf = readPage(oPageNo, toRead);
+            var obuf = await readPage(oPageNo, toRead);
             if (obuf != null) {
               toRead -= 4;
               for (var k = 0; k < toRead; k++)
@@ -430,12 +430,12 @@ function showBTreePage(obj, evt, start) {
   }
   det += "</table>";
   $('#detailArea').empty().append(det);
-  evt.stopPropagation();
 }
 
-function showFreeTrunkPage(obj, evt, start) {
+async function showFreeTrunkPage(obj, evt, start) {
+  evt.stopPropagation();
   var pageNo = parseInt(obj.children.item(0).value);
-  var arr = readPage(pageNo, pageSize);
+  var arr = await readPage(pageNo, pageSize);
   if (arr == null)
     return;
   var nextTrunk = fourBytesToInt(arr, 0);
@@ -459,12 +459,12 @@ function showFreeTrunkPage(obj, evt, start) {
     det += "</table>";
   showHex(arr, start, 0);
   $('#detailArea').empty().append(det);
-  evt.stopPropagation();
 }
 
-function showFreeLeafPage(obj, evt, start) {
+async function showFreeLeafPage(obj, evt, start) {
+  evt.stopPropagation();
   var pageNo = parseInt(obj.children.item(0).value);
-  var arr = readPage(pageNo, pageSize);
+  var arr = await readPage(pageNo, pageSize);
   if (arr == null)
     return;
   showHex(arr, start, 0);
@@ -475,22 +475,21 @@ function showFreeLeafPage(obj, evt, start) {
                     + pageNo + ", \"b\", false);'/>";
     $('#detailArea').append(detHtml);
   }
-  evt.stopPropagation();
 }
 
-function showPage(obj, evt, start) {
+async function showPage(obj, evt, start) {
+  evt.stopPropagation();
   var pageNo = parseInt(obj.children.item(0).value);
-  var arr = readPage(pageNo, pageSize);
+  var arr = await readPage(pageNo, pageSize);
   if (arr == null)
     return;
   showHex(arr, start, 0);
   $('#detailArea').empty();
-  evt.stopPropagation();
   return arr;
 }
 
-function showOverflowPage(obj, evt, start) {
-  var arr = showPage(obj, evt, start);
+async function showOverflowPage(obj, evt, start) {
+  var arr = await showPage(obj, evt, start);
   var nextPageNo = fourBytesToInt(arr, 0);
   if (nextPageNo) {
     $('#detailArea').append("<td><input type='button' value='Next Page " + nextPageNo + "' onclick='openPage(\"" + obj.id + "\"," 
@@ -504,18 +503,14 @@ function showPage1(obj, evt) {
   showBTreePage(obj, evt, 100);
 }
 
-function loadCmdLineFile() {
-  var args = window.api.sendSync('toMain', {cmd: 'getProcArgs'});
-  if (args.length > 2) {
-    if (window.api.sendSync('toMain', {cmd: 'openFile', path: args[2]}))
-      loadFile();
-      $('#dbName').empty().append(args[2]);
+async function loadFile({files}) {
+  if (files.length == 0) {
+    alert("No file selected");
+    return;
   }
-}
-
-function loadFile() {
-  data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: 100});
-  var buffer = data.bytesRead;
+  file = files[0]
+  $('#dbName').empty().append(file.name);
+  var buffer = new Uint8Array(await file.slice(0, 100).arrayBuffer());
   if (buffer == null || buffer == undefined || buffer.length < 100) {
     alert("Error reading header");
     return;
@@ -540,9 +535,7 @@ function loadFile() {
   minLocal = Math.floor((usableSize - 12) * 32 / 255 - 23);
   maxLeaf = Math.floor(usableSize - 35);
   minLeaf = Math.floor((usableSize - 12) * 32 / 255 - 23);
-  buffer = new Uint8Array(pageSize);
-  data = window.api.sendSync('toMain', {cmd: 'readFile', fromPos: 0, byteCount: pageSize});
-  buffer = data.bytesRead;
+  buffer = new Uint8Array(await file.slice(0, pageSize).arrayBuffer());
   if (buffer == null || buffer == undefined || buffer.length < pageSize) {
     alert("Error reading header");
     return;
@@ -553,23 +546,6 @@ function loadFile() {
     title: "Loaded"
   });
   $('.watermark').empty();
-
-}
-
-function selectFile() {
-  try {
-        var data = window.api.sendSync('toMain', {cmd: 'openDialog'});
-        fileNames = data.fileNames;
-        if (fileNames === undefined) {
-            alert("No file selected");
-        } else {
-            loadFile();
-            $('#dbName').empty().append(fileNames[0]);
-        }
-  } catch (err) {
-      alert(err);
-      window.close();
-  }
 }
 
 function syncScroll(obj) {

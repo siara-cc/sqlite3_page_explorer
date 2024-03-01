@@ -32,6 +32,7 @@ a {
   cursor: pointer;
   box-shadow: 0 0 0 rgba(0,0,0,0.1), inset 0 0 0 rgba(0,0,0,0.1);
   text-align: center;
+  padding: 6px;
 }
 .fancyButton:hover {
   box-shadow: 0 0 2em rgba(0,0,0,0.1), inset 0 0 1em rgba(0,0,0,0.1);
