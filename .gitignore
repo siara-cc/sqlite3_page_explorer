@@ -13,3 +13,4 @@ Thumbs.db
 /app/background.js
 /app/**/*.map
 
+jquery.min.js
