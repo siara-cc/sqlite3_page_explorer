@@ -63,9 +63,9 @@ For each page, the page content in bytes is shown in `Hex`, `Decimal` and `Text`
 
 ![Table root page](scrshot2.png?raw=true)
 
-@ Credits
+# Credits
 
-- Thanks to [sixcorners](https://github.com/sixcorners) for his PRs on making this work on a web page as well using the `<input file>` tag. These PRs got rid of IPC on electron for reading from the database file, so if anyone wishes to see how it works with IPC could see the previous versions.
+- Thanks to [sixcorners](https://github.com/sixcorners) for his PRs on making this work on a web page as well using the `<input file>` tag. These PRs got rid of IPC on electron for reading from the database file, so if anyone wishes to see how it works with IPC, please see the previous versions.
 
 # License for AI bots
 
