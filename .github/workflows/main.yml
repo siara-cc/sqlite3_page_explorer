@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - master
+      - 'test*'
   create:
     tags:
       - 'v*'
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -19,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '18'
 
       - name: Install electron
         run: npm install electron --save-dev
@@ -36,8 +37,29 @@ jobs:
           name: sqlite3-page-explorer-linux-x64
           path: release-builds/sqlite3-page-explorer-linux-x64
 
+      - name: Apt update
+        run: sudo dpkg --add-architecture i386 |
+          sudo apt-get update
+
       - name: Install wine
-        run: sudo apt install -y wine
+        run: sudo apt install -y wine wine64
+
+      - name: Build win64
+        run: npm run package-win64
+
+      - name: update npm log if on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with: 
+          name: npm-debug-logs
+          path: /home/runner/.npm/_logs/
+          if-no-files-found: ignore
+
+      - name: Upload artifact win64
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlite3-page-explorer-win32-x64
+          path: release-builds/sqlite3-page-explorer-win32-x64
 
       - name: Build win32
         run: npm run package-win32
@@ -49,7 +71,7 @@ jobs:
           path: release-builds/sqlite3-page-explorer-win32-ia32
 
   create_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
@@ -61,6 +83,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Download build artifact win64
+        uses: actions/download-artifact@v4
+        with:
+          name: sqlite3-page-explorer-win32-x64
+          path: release-builds/sqlite3-page-explorer-win32-x64
 
       - name: Download build artifact win32
         uses: actions/download-artifact@v4
@@ -77,6 +105,7 @@ jobs:
       - name: Compress build artifacts
         run: |
           cd release-builds
+          zip -r sqlite3-page-explorer-win32-x64.zip sqlite3-page-explorer-win32-x64
           zip -r sqlite3-page-explorer-win32-ia32.zip sqlite3-page-explorer-win32-ia32
           zip -r sqlite3-page-explorer-linux-x64.zip sqlite3-page-explorer-linux-x64
           cd -
@@ -91,6 +120,16 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+
+      - name: Upload Release Asset win64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release-builds/sqlite3-page-explorer-win32-x64.zip
+          asset_name: sqlite3-page-explorer-win32-x64.zip
+          asset_content_type: application/octet-stream
 
       - name: Upload Release Asset win32
         uses: actions/upload-release-asset@v1
